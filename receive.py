@@ -73,6 +73,7 @@ class URReceiver(object):
 
         if self.new_data:
             self.clean_data = self.format.unpack(self.raw_data)
+            self.time = self.clean_data[1]
             self.new_data = False
 
     def receive(self):

@@ -27,29 +27,17 @@ class URReceiver(object):
         """
 
         self.ip_addr = ip #: The IP address of the robot
-
         self.port = port #: The IP Port on which which to talk to robot
-
         self.clean_data = array.array('d', [0]*101) #: Storage location for all of the data returned by the robot
-
         self.raw_data = '' #: Storage location for complete raw data packet
-
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #: The socket for communications
-
         self.socket.connect((self.ip_addr, self.port)) #Connect to robot
-
         self.clean_packets = 0 #: The number of packets which have been received cleanly
-
         self.stub_packets = 0 #: The number of packets which have been received as stubs
-
         self.received = 0 #: The total number of complete datagrams which have been received
-
         self.waiting_data = [] #: Storage location for incomplete datasets
-
         self.new_data = False #: Whether new data is available for processing
-
         self.time = 0.0 #: Time elapsed since the controller was started
-
         self.target_joint_positions = [0.0]*6
         self.target_joint_velocities = [0.0]*6
         self.target_joint_accelerations = [0.0]*6

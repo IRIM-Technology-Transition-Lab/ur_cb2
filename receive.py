@@ -48,9 +48,25 @@ class URReceiver(object):
 
         self.new_data = False #: Whether new data is available for processing
 
-        self.time = 0.0 #: The time since the controller turned on
+        self.time = 0.0 #: Time elapsed since the controller was started
 
-
+        self.target_joint_positions = [0.0]*6
+        self.target_joint_velocities = [0.0]*6
+        self.target_joint_accelerations = [0.0]*6
+        self.target_joint_currents = [0.0]*6
+        self.target_joint_moments = [0.0]*6 #:The target joint moments as torques
+        self.actual_joint_positions = [0.0]*6
+        self.actual_joint_velocities = [0.0]*6
+        self.actual_joint_currents = [0.0]*6
+        self.tool_accelartion = [0.0]*6 #:Tool x,y and z accelerometer values (software version 1.7)
+        self.force_tcp = [0.0]*6 #:Generalised forces in the TCP
+        self.position = [0.0]*6 #: Cartesian coordinates of the tool: (x,y,z,rx,ry,rz), where rx, ry and rz is a rotation vector representation of the tool orientation
+        self.tool_speed = [0.0]*6 #:Speed of the tool given in cartesian coordinates
+        self.digital_inputs = 0.0 #:Current state of the digital inputs. NOTE: these are bits encoded as int64_t, e.g. a value of 5 corresponds to bit 0 and bit 2 set high
+        self.joint_temperature = [0.0]*6 #: Temperature of each joint in degrees celcius
+        self.controller_period = 0.0 #:Controller realtime thread execution time
+        self.robot_control_mode = 0.0 #: Robot control mode (see PolyScopeProgramServer on the "How to" page
+        self.joint_control_modes = [0.0]*6 #: Joint control modes (see PolyScopeProgramServer on the "How to" page) (only from software version 1.8 and on)
 
     def __del__(self):
         """Shutdown connection and print aggregated connection stats"""

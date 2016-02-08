@@ -14,8 +14,10 @@ class URReceiver(object):
     # Format spcifier:
     # ! : network (big endian)
     # I : unsigned int, message size
-    # 101d : 101 doubles
-    format = struct.Struct('! I 101d ') #: The format spec for a complete data packet
+    # 85d : 85 doubles
+    # q : int64_t for digital inputs
+    # 15d : 15 doubles
+    format = struct.Struct('! I 85d q 15d') #: The format spec for a complete data packet
     formatLength = struct.Struct('! I') #: The format spec for the packet length field
     name_width = 30 #: The width to be given to name items when printing out
     precision = 4 #: The precision for printing data
@@ -52,7 +54,7 @@ class URReceiver(object):
         self.force_tcp = [0.0]*6 #:Generalised forces in the TCP
         self.position = [0.0]*6 #: Cartesian coordinates of the tool: (x,y,z,rx,ry,rz), where rx, ry and rz is a rotation vector representation of the tool orientation
         self.tool_speed = [0.0]*6 #:Speed of the tool given in cartesian coordinates
-        self.digital_inputs = 0.0 #:Current state of the digital inputs. NOTE: these are bits encoded as int64_t, e.g. a value of 5 corresponds to bit 0 and bit 2 set high
+        self.digital_inputs = 0 #:Current state of the digital inputs. NOTE: these are bits encoded as int64_t, e.g. a value of 5 corresponds to bit 0 and bit 2 set high
         self.joint_temperature = [0.0]*6 #: Temperature of each joint in degrees celcius
         self.controller_period = 0.0 #:Controller realtime thread execution time
         self.robot_control_mode = 0.0 #: Robot control mode (see PolyScopeProgramServer on the "How to" page
@@ -80,7 +82,24 @@ class URReceiver(object):
             self.clean_data = self.format.unpack(self.raw_data)
             self.time = self.clean_data[1]
             self.target_joint_positions = self.clean_data[2:8]
-            self.target_joint_velocities = self.clean_data[9:15]
+            self.target_joint_velocities = self.clean_data[8:14]
+            self.target_joint_accelerations = self.clean_data[14:20]
+            self.target_joint_currents = self.clean_data[20:26]
+            self.target_joint_moments = self.clean_data[26:32]
+            self.actual_joint_positions = self.clean_data[32:38]
+            self.actual_joint_velocities = self.clean_data[38:44]
+            self.actual_joint_currents = self.clean_data[44:50]
+            self.tool_accelerometer = self.clean_data[50:53]
+            # unused = self.clean_data[53:68]
+            self.force_tcp = self.clean_data[68:74]
+            self.position = self.clean_data[74:80]
+            self.tool_speed = self.clean_data[80:86]
+            self.digital_inputs = self.clean_data[86]
+            self.joint_temperature = self.clean_data[87:93]
+            self.controller_period = self.clean_data[93]
+            # testvalue = self.clean_data[94]
+            self.robot_control_mode = self.clean_data[95]
+            self.joint_control_modes = self.clean_data[96:102]
             self.new_data = False
 
     def receive(self):
@@ -151,12 +170,12 @@ class URReceiver(object):
         self.output_data_item("Generalised forces in the TCP", self.force_tcp)
         self.output_data_item("Cartesian tool position", self.position)
         self.output_data_item("Cartesian tool speed", self.tool_speed)
-        self.output_data_item("Joint temperatures",  self.joint_temperature)
+        self.output_data_item("Joint temperatures (deg C)", self.joint_temperature)
         self.output_data_item("Controller period", self.controller_period)
         self.output_data_item("Robot control mode", self.robot_control_mode)
-        self.output_data_item("Robot control mode", self.joint_control_modes)
-        print "Digital Inputs: "+ str(self.digital_inputs.hex())
-
+        self.output_data_item("Joint control modes", self.joint_control_modes)
+        print (("%-"+str(self.name_width)+"s") %"Digital Input Number") + ": " + '|'.join('{:^2d}'.format(x) for x in range(0, 18))
+        print (("%-"+str(self.name_width)+"s") %"Digital Input Value: ") + ": " + '|'.join('{:^2s}'.format(x) for x in '{:018b}'.format(self.digital_inputs)[::-1])
 
 
 HOST = "192.168.1.100"    # The remote host

@@ -288,7 +288,7 @@ class URReceiver(object):
             self.run = True
             self.__receiving_thread = threading.Thread(group=None,
                                                        target=self.loop,
-                                                       name='__receiving_thread',
+                                                       name='receiving_thread',
                                                        args=(),
                                                        kwargs={})
             self.__receiving_thread.start()

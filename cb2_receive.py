@@ -14,23 +14,26 @@ class URReceiver(object):
     additional thread. Alternatively, receive(), decode(), and
     print_parsed_data() can be called in sequence in order to receive,
     decode, and print data. One should not call receive(), decode(), or any
-    of the print methods, if a separate thread is being used.
+    of the print methods, if a separate thread is being used. You should
+    never write to any of the data fields externally, however you can read
+    from them. Python's atomic read/write architecture should prevent you
+    from getting any half baked results.
 
     Attributes:
         ip_address: String of IP address of the robot
         port: Integer of the IP Port on which which to talk to robot
-        __clean_data: Double array of length 101 for all of the data returned by
+        clean_data: Double array of length 101 for all of the data returned by
             the robot
-        __raw_data = '' #: String of complete raw data packet
+        raw_data = '' #: String of complete raw data packet
         __socket: The socket for communications
-        __clean_packets: The Integer number of packets which have been received
+        clean_packets: The Integer number of packets which have been received
             cleanly
-        __stub_packets: The Integer number of packets which have been received
+        stub_packets: The Integer number of packets which have been received
             as stubs
-        __received: The total Integer number of complete data sets which have
+        received: The total Integer number of complete data sets which have
             been received
-        __waiting_data: String to hold incomplete data sets
-        __new_data: Boolean whether new data is available for processing
+        waiting_data: String to hold incomplete data sets
+        new_data: Boolean whether new data is available for processing
         time: Double of time elapsed since the controller was started
         target_joint_positions: 6 member Double list of target joint positions
         target_joint_velocities: 6 member Double list of target joint velocities
@@ -97,14 +100,14 @@ class URReceiver(object):
 
         self.ip_address = ip
         self.port = port
-        self.__clean_data = array.array('d', [0]*101)
-        self.__raw_data = ''
+        self.clean_data = array.array('d', [0] * 101)
+        self.raw_data = ''
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__clean_packets = 0
-        self.__stub_packets = 0
-        self.__received = 0
-        self.__waiting_data = ''
-        self.__new_data = False
+        self.clean_packets = 0
+        self.stub_packets = 0
+        self.received = 0
+        self.waiting_data = ''
+        self.new_data = False
         self.time = 0.0
         self.target_joint_positions = [0.0]*6
         self.target_joint_velocities = [0.0]*6
@@ -126,7 +129,6 @@ class URReceiver(object):
         self.run = False
         self.receiving_thread = None
         self.verbose = verbose
-        self.lock = threading.Lock()
 
         self.__socket.connect((self.ip_address, self.port))  # Connect to robot
         print "\033[2J"  # Clear screen
@@ -141,9 +143,9 @@ class URReceiver(object):
         self.__socket.close()
         self.verbose_print('shutdown and closed socket', '*')
 
-        print "Received: "+str(self.__received) + " packets"
-        print "Received: "+str(self.__clean_packets) + " clean packets"
-        print "Received: "+str(self.__stub_packets) + " stub packets"
+        print "Received: "+str(self.received) + " packets"
+        print "Received: "+str(self.clean_packets) + " clean packets"
+        print "Received: "+str(self.stub_packets) + " stub packets"
 
     def decode(self):
         """Decode the data stored in the class's rawData field.
@@ -152,29 +154,29 @@ class URReceiver(object):
         self.newData flag upon completion.
         """
 
-        if self.__new_data:  # TODO: Maybe this will need a lock
-            self.__clean_data = self.format.unpack(self.__raw_data)
-            self.time = self.__clean_data[1]
-            self.target_joint_positions = self.__clean_data[2:8]
-            self.target_joint_velocities = self.__clean_data[8:14]
-            self.target_joint_accelerations = self.__clean_data[14:20]
-            self.target_joint_currents = self.__clean_data[20:26]
-            self.target_joint_moments = self.__clean_data[26:32]
-            self.actual_joint_positions = self.__clean_data[32:38]
-            self.actual_joint_velocities = self.__clean_data[38:44]
-            self.actual_joint_currents = self.__clean_data[44:50]
-            self.tool_accelerometer = self.__clean_data[50:53]
-            # unused = self.__clean_data[53:68]
-            self.force_tcp = self.__clean_data[68:74]
-            self.position = self.__clean_data[74:80]
-            self.tool_speed = self.__clean_data[80:86]
-            self.digital_inputs = self.__clean_data[86]
-            self.joint_temperature = self.__clean_data[87:93]
-            self.controller_period = self.__clean_data[93]
-            # test value = self.__clean_data[94]
-            self.robot_control_mode = self.__clean_data[95]
-            self.joint_control_modes = self.__clean_data[96:102]
-            self.__new_data = False
+        if self.new_data:  # TODO: Maybe this will need a lock
+            self.clean_data = self.format.unpack(self.raw_data)
+            self.time = self.clean_data[1]
+            self.target_joint_positions = self.clean_data[2:8]
+            self.target_joint_velocities = self.clean_data[8:14]
+            self.target_joint_accelerations = self.clean_data[14:20]
+            self.target_joint_currents = self.clean_data[20:26]
+            self.target_joint_moments = self.clean_data[26:32]
+            self.actual_joint_positions = self.clean_data[32:38]
+            self.actual_joint_velocities = self.clean_data[38:44]
+            self.actual_joint_currents = self.clean_data[44:50]
+            self.tool_accelerometer = self.clean_data[50:53]
+            # unused = self.clean_data[53:68]
+            self.force_tcp = self.clean_data[68:74]
+            self.position = self.clean_data[74:80]
+            self.tool_speed = self.clean_data[80:86]
+            self.digital_inputs = self.clean_data[86]
+            self.joint_temperature = self.clean_data[87:93]
+            self.controller_period = self.clean_data[93]
+            # test value = self.clean_data[94]
+            self.robot_control_mode = self.clean_data[95]
+            self.joint_control_modes = self.clean_data[96:102]
+            self.new_data = False
 
     def receive(self):
         """Receive data from the UR Robot.
@@ -187,28 +189,28 @@ class URReceiver(object):
 
         incoming_data = self.__socket.recv(812)  # expect to get 812 bytes
         if len(incoming_data) == 812:
-            self.__clean_packets += 1
+            self.clean_packets += 1
         if self.formatLength.unpack(incoming_data[0:4])[0] == 812:
-            self.__waiting_data = incoming_data
+            self.waiting_data = incoming_data
         else:
-            self.__waiting_data += incoming_data
-            self.__stub_packets += 1
+            self.waiting_data += incoming_data
+            self.stub_packets += 1
 
-        if len(self.__waiting_data) == 812:
-            self.__raw_data = self.__waiting_data
-            self.__received += 1
-            self.__new_data = True
+        if len(self.waiting_data) == 812:
+            self.raw_data = self.waiting_data
+            self.received += 1
+            self.new_data = True
 
     def print_raw_data(self):
-        """Print the raw data which is stored in self.__raw_data"""
+        """Print the raw data which is stored in self.raw_data"""
 
-        print "Received (raw): "+self.__raw_data+"\n"
+        print "Received (raw): "+self.raw_data + "\n"
 
     def print_data(self):
-        """Print the processed data stored in self.__clean_data"""
+        """Print the processed data stored in self.clean_data"""
 
         print "Received (unpacked):\n "
-        print self.__clean_data
+        print self.clean_data
         print "\n"
 
     def output_data_item(self, name, values):

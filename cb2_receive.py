@@ -335,5 +335,3 @@ class URReceiver(object):
             else:
                 print (emphasis*count + " " + string_input + " " +
                        emphasis * count)
-
-

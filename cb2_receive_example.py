@@ -9,10 +9,6 @@ MY_UR_RECEIVER = cb2_receive.URReceiver(HOST, PORT)
 MY_UR_RECEIVER.start()
 
 some_num = 0
-# while True:
-#     print "\n\n" + str(some_num) + "\n\n"
-#     some_num += 1
-#     time.sleep(2)
 
 try:
     while True:

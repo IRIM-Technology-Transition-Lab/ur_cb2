@@ -52,6 +52,7 @@ class URSender(object):
         self.radius = 0.0 # blend radius [m]
         self.a_joint = 1.2 # joint acceleration of leading axis [rad/sˆ2]
         self.v_joint = 0.3 # joint speed of leading axis [rad/s]
+        self.tool_voltage_set = False
 
     def __del__(self):
         """Shutdown IP port"""
@@ -281,7 +282,7 @@ class URSender(object):
 
         self.send('set_analog_out(n=id,f=level)')
 
-    def set_analog_output_domain(self, id, domain):
+    def set_analog_output_domain(self, ao_id, domain):
         """Sets the signal domain of the analog outputs.
 
         The analog outputs can be flexibly set to operate on a 4-20mA or 0-10V
@@ -289,35 +290,50 @@ class URSender(object):
         tool.
 
         Args:
-            id (int): The port number (0 or 1).
+            ao_id (int): The port number (0 or 1).
             domain (int): 0 for 4-20mA and 1 for 0-10V
         """
+        if not isinstance(ao_id, int):
+            raise TypeError("Expected int for ao_id")
 
-        self.send('set_analog_outputdomain(port=id,domain=domain)')
+        if not isinstance(domain, int):
+            raise TypeError("Expected int for domain")
 
-    def set_digital_out(self, id, level):
-        """Set the value for DO[id]
+        if ao_id not in (0, 1):
+            raise IndexError('The Analog output ID must be either 0 or 1')
+
+        if domain not in (0, 1):
+            raise IndexError('The Analog domain must be either 0 or 1')
+
+        self.send('set_analog_outputdomain(port={},domain={})'.format(
+            ao_id, domain))
+
+    def set_digital_out(self, do_id, level):
+        """Set the value for DO[do_id]
 
         Args:
-            id (int): The digital output #. Values 0-7 are on the control
+            do_id (int): The digital output #. Values 0-7 are on the control
                 box. Values 8 and 9 are on the tool flange. You must set the
                 tool voltage prior to attempting to modify the tool flange
                 outputs.
             level (bool): High or low setting for output
         """
 
-        if id in (8,9) and not self.tool_voltage_set:
+        if not isinstance(do_id, int):
+            raise TypeError("Expected int for do_id")
+
+        if do_id in (8, 9) and not self.tool_voltage_set:
             raise StandardError("The tool voltage must be set prior to "
                                 "attempting to alter tool outputs")
-        if id > 9 or id < 0:
+        if do_id > 9 or do_id < 0:
             raise IndexError("The valid range for digital outputs is 0-9")
 
-        if not isinstance(level,bool):
+        if not isinstance(level, bool):
             raise TypeError("Expected boolean for level")
 
-        self.send('set_digital_out(n={},b={})'.format(id,1 if level else 0))
+        self.send('set_digital_out(n={},b={})'.format(do_id, 1 if level else 0))
 
-    def set_tool_voltage(self,voltage):
+    def set_tool_voltage(self, voltage):
         """Sets the voltage level for the power supply that delivers power to
         the connector plug in the tool flange of the robot. The votage can be 0,
         12 or 24 volts.

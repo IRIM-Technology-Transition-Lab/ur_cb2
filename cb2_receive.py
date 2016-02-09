@@ -4,11 +4,17 @@ import socket
 import struct
 import array
 import threading
-import time
 
 
 class URReceiver(object):
     """A class to receive and process data from a UR Robot
+
+    The receiving and processing can be run in a separate thread by calling
+    start(). The stop() command must be called before exiting to halt the
+    additional thread. Alternatively, receive(), decode(), and
+    print_parsed_data() can be called in sequence in order to receive,
+    decode, and print data. One should not call receive(), decode(), or any
+    of the print methods, if a separate thread is being used.
 
     Attributes:
         ip_address: String of IP address of the robot
@@ -193,7 +199,7 @@ class URReceiver(object):
             self.__received += 1
             self.__new_data = True
 
-    def print___raw_data(self):
+    def print_raw_data(self):
         """Print the raw data which is stored in self.__raw_data"""
 
         print "Received (raw): "+self.__raw_data+"\n"
@@ -330,24 +336,4 @@ class URReceiver(object):
                 print (emphasis*count + " " + string_input + " " +
                        emphasis * count)
 
-HOST = "192.168.1.100"    # The remote host
-PORT = 30003              # The same port as used by the server
 
-MY_UR_RECEIVER = URReceiver(HOST, PORT)
-
-MY_UR_RECEIVER.start()
-
-some_num = 0
-# while True:
-#     print "\n\n" + str(some_num) + "\n\n"
-#     some_num += 1
-#     time.sleep(2)
-
-try:
-    while True:
-        print "\n\n" + str(some_num) + "\n\n"
-        some_num += 1
-        time.sleep(.25)
-except KeyboardInterrupt:
-    MY_UR_RECEIVER.stop()
-    pass

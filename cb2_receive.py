@@ -65,7 +65,7 @@ class URReceiver(object):
             PolyScopeProgramServer on the "How to" page) (only from software
             version 1.8 and on)
         run: Boolean on whether to run or not
-        receiving_thread: Thread object for running the receiving and parsing
+        __receiving_thread: Thread object for running the receiving and parsing
             loops
         verbose: Boolean defining whether or not to print data
     """
@@ -127,7 +127,7 @@ class URReceiver(object):
         self.robot_control_mode = 0.0
         self.joint_control_modes = [0.0]*6
         self.run = False
-        self.receiving_thread = None
+        self.__receiving_thread = None
         self.verbose = verbose
 
         self.__socket.connect((self.ip_address, self.port))  # Connect to robot
@@ -283,15 +283,15 @@ class URReceiver(object):
     def start(self):
         """Spawn a new thread for receiving and run it"""
 
-        if (self.receiving_thread is None or
-                not self.receiving_thread.is_alive()):
+        if (self.__receiving_thread is None or
+                not self.__receiving_thread.is_alive()):
             self.run = True
-            self.receiving_thread = threading.Thread(group=None,
-                                                     target=self.loop,
-                                                     name='receiving_thread',
-                                                     args=(),
-                                                     kwargs={})
-            self.receiving_thread.start()
+            self.__receiving_thread = threading.Thread(group=None,
+                                                       target=self.loop,
+                                                       name='__receiving_thread',
+                                                       args=(),
+                                                       kwargs={})
+            self.__receiving_thread.start()
 
     def loop(self):
         """The main loop which receives, decodes, and optionally prints data"""
@@ -303,16 +303,16 @@ class URReceiver(object):
                 self.print_parsed_data()
 
     def stop(self):
-        if self.receiving_thread is not None:
-            if self.receiving_thread.is_alive():
+        if self.__receiving_thread is not None:
+            if self.__receiving_thread.is_alive():
                 self.verbose_print('attempting to shutdown auxiliary thread',
                                    '*')
                 self.run = False  # Python writes like this are atomic
-                self.receiving_thread.join()
+                self.__receiving_thread.join()
                 self.verbose_print('\033[500D')
                 self.verbose_print('\033[500C')
                 self.verbose_print('-', '-', 40)
-                if self.receiving_thread.is_alive():
+                if self.__receiving_thread.is_alive():
                     self.verbose_print('failed to shutdown auxiliary thread',
                                        '*')
                 else:

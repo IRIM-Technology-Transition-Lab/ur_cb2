@@ -299,11 +299,23 @@ class URSender(object):
         """Set the value for DO[id]
 
         Args:
-            id (int): The digital output #
+            id (int): The digital output #. Values 0-7 are on the control
+                box. Values 8 and 9 are on the tool flange. You must set the
+                tool voltage prior to attempting to modify the tool flange
+                outputs.
             level (bool): High or low setting for output
         """
 
-        self.send('set_digital_out(n=id,b=level)')
+        if id in (8,9) and not self.tool_voltage_set:
+            raise StandardError("The tool voltage must be set prior to "
+                                "attempting to alter tool outputs")
+        if id > 9 or id < 0:
+            raise IndexError("The valid range for digital outputs is 0-9")
+
+        if not isinstance(level,bool):
+            raise TypeError("Expected boolean for level")
+
+        self.send('set_digital_out(n={},b={})'.format(id,1 if level else 0))
 
     def set_tool_voltage(self,voltage):
         """Sets the voltage level for the power supply that delivers power to
@@ -314,8 +326,12 @@ class URSender(object):
             voltage (int):The voltage to set at the tool connector
         """
 
-        if voltage not in (0,12,24):
+        if not isinstance(voltage, int):
+            raise TypeError("Expected int for voltage")
+
+        if voltage not in (0, 12, 24):
             raise ValueError("Voltage must be 0, 12, or 24")
 
-        self.send('set_tool_voltage(voltage=voltage)')
+        self.send('set_tool_voltage(voltage={})'.format(voltage))
+        self.tool_voltage_set = True
 

@@ -8,7 +8,41 @@ import struct
 import array
 
 class URReceiver(object):
-    """A class to receive and process data from a UR Robot"""
+    """A class to receive and process data from a UR Robot
+
+    Attributes:
+        ip_addr: Integer of IP address of the robot
+        port: Integer of the IP Port on which which to talk to robot
+        clean_data: Double array of length 101 for all of the data returned by the robot
+        raw_data = '' #: String of complete raw data packet
+        socket: The socket for communications
+        clean_packets: The Integer number of packets which have been received cleanly
+        stub_packets: The Integer number of packets which have been received as stubs
+        received: The total Integer number of complete datagrams which have been received
+        waiting_data: String to hold incomplete datasets
+        new_data: Boolean whether new data is available for processing
+        time: Double of time elapsed since the controller was started
+        target_joint_positions: 6 member Double list of target joint positions
+        target_joint_velocities: 6 member Double list of target joint velocities
+        target_joint_accelerations: 6 member Double list of target joint accelerations
+        target_joint_currents: 6 member Double list of target joint currents
+        target_joint_moments: 6 member Double list of target joint moments as torques
+        actual_joint_positions: 6 member Double list of actual joint positions
+        actual_joint_velocities: 6 member Double list of actual joint velocities
+        actual_joint_currents: 6 member Double list of actual joint currents
+        tool_acceleromete: 3 member Double list of ool x,y and z accelerometer values (software version 1.7)
+        force_tcp: 6 member Double list of generalised forces in the TCP
+        position: 6 member Double list of cartesian coordinates of the tool: (x,y,z,rx,ry,rz), where rx, ry and rz is a rotation vector representation of the tool orientation
+        tool_speed: 6 member Double list of speed of the tool given in cartesian coordinates
+        digital_inputs: Current state of the digital inputs. NOTE: these are bits encoded as int64_t, e.g. a value of 5 corresponds to bit 0 and bit 2 set high
+        joint_temperature: 6 member Double list of temperature of each joint in degrees celcius
+        controller_period: Double of controller realtime thread execution time
+        robot_control_mode: Double of robot control mode (see PolyScopeProgramServer on the "How to" page
+        joint_control_modes: 6 member Double list of joint control modes (see PolyScopeProgramServer on the "How to" page) (only from software version 1.8 and on)
+
+        self.socket.connect((self.ip_addr, self.port)) #Connect to robot
+        print "\033[2J" #Clear screen
+    """
     # pylint: disable=too-many-instance-attributes
 
     # Format spcifier:
@@ -31,34 +65,34 @@ class URReceiver(object):
             port (int): The port to connect to on the robot (3001:primary client, 3002:secondary client, 3003: realtime client)
         """
 
-        self.ip_addr = ip #: The IP address of the robot
-        self.port = port #: The IP Port on which which to talk to robot
-        self.clean_data = array.array('d', [0]*101) #: Storage location for all of the data returned by the robot
-        self.raw_data = '' #: Storage location for complete raw data packet
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #: The socket for communications
-        self.clean_packets = 0 #: The number of packets which have been received cleanly
-        self.stub_packets = 0 #: The number of packets which have been received as stubs
-        self.received = 0 #: The total number of complete datagrams which have been received
-        self.waiting_data = [] #: Storage location for incomplete datasets
-        self.new_data = False #: Whether new data is available for processing
-        self.time = 0.0 #: Time elapsed since the controller was started
+        self.ip_addr = ip
+        self.port = port
+        self.clean_data = array.array('d', [0]*101)
+        self.raw_data = ''
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.clean_packets = 0
+        self.stub_packets = 0
+        self.received = 0
+        self.waiting_data = ''
+        self.new_data = False
+        self.time = 0.0
         self.target_joint_positions = [0.0]*6
         self.target_joint_velocities = [0.0]*6
         self.target_joint_accelerations = [0.0]*6
         self.target_joint_currents = [0.0]*6
-        self.target_joint_moments = [0.0]*6 #:The target joint moments as torques
+        self.target_joint_moments = [0.0]*6
         self.actual_joint_positions = [0.0]*6
         self.actual_joint_velocities = [0.0]*6
         self.actual_joint_currents = [0.0]*6
-        self.tool_accelerometer = [0.0]*3 #:Tool x,y and z accelerometer values (software version 1.7)
-        self.force_tcp = [0.0]*6 #:Generalised forces in the TCP
-        self.position = [0.0]*6 #: Cartesian coordinates of the tool: (x,y,z,rx,ry,rz), where rx, ry and rz is a rotation vector representation of the tool orientation
-        self.tool_speed = [0.0]*6 #:Speed of the tool given in cartesian coordinates
-        self.digital_inputs = 0 #:Current state of the digital inputs. NOTE: these are bits encoded as int64_t, e.g. a value of 5 corresponds to bit 0 and bit 2 set high
-        self.joint_temperature = [0.0]*6 #: Temperature of each joint in degrees celcius
-        self.controller_period = 0.0 #:Controller realtime thread execution time
-        self.robot_control_mode = 0.0 #: Robot control mode (see PolyScopeProgramServer on the "How to" page
-        self.joint_control_modes = [0.0]*6 #: Joint control modes (see PolyScopeProgramServer on the "How to" page) (only from software version 1.8 and on)
+        self.tool_accelerometer = [0.0]*3
+        self.force_tcp = [0.0]*6
+        self.position = [0.0]*6
+        self.tool_speed = [0.0]*6
+        self.digital_inputs = 0
+        self.joint_temperature = [0.0]*6
+        self.controller_period = 0.0
+        self.robot_control_mode = 0.0
+        self.joint_control_modes = [0.0]*6
 
         self.socket.connect((self.ip_addr, self.port)) #Connect to robot
         print "\033[2J" #Clear screen

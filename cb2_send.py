@@ -150,7 +150,7 @@ class URSender(object):
         verbose: Boolean of whether to print info to the console
     """
 
-    def __init__(self, ip, port, verbose=False):
+    def __init__(self, open_socket, verbose=False):
         """Construct a UR Robot connection to send commands
 
         Args:
@@ -161,9 +161,7 @@ class URSender(object):
             verbose (bool): Whether to print information to the terminal
         """
 
-        self.ip_address = ip
-        self.port = port
-        self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__socket = open_socket
         self.a_tool = 1.2
         self.v_tool = 0.3
         self.radius = 0.0
@@ -172,16 +170,6 @@ class URSender(object):
         self.tool_voltage_set = False
         self.force_settings = None
         self.verbose = verbose
-
-        self.__socket.connect((ip, port))
-
-    def __del__(self):
-        """Shutdown IP port"""
-
-        print 'closing ports'
-        self.__socket.shutdown(socket.SHUT_RDWR)
-        self.__socket.close()
-        print 'shutdown and closed socket'
 
     def send(self, message):
         """Sends the message over the IP pipe.

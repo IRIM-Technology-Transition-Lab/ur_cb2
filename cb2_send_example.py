@@ -11,5 +11,6 @@ angleStart = [90, -95, 90, 0, 90, 90]
 angleStart = map(cb2_send.deg_2_rad, angleStart)
 
 robot.move_joint(angleStart)
-
-time.sleep(1)
+print "sleep time"
+time.sleep(5)
+print "done sleeping"

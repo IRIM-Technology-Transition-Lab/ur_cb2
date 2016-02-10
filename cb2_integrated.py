@@ -2,6 +2,7 @@ import cb2_send
 import cb2_receive
 import Queue
 import time
+import socket
 
 
 class Goal(object):
@@ -24,19 +25,22 @@ class URRobot(object):
     sleep_time = 0.05
 
     def __init__(self, ip, port):
-        self.receiver = cb2_receive.URReceiver(ip, port, False)
-        self.sender = cb2_send.URSender(ip, port, False)
+        self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__socket.connect((ip, port))
+        self.receiver = cb2_receive.URReceiver(self.__socket, False)
+        self.sender = cb2_send.URSender(self.__socket, False)
         self.error = 0.0
         self.goals = Queue.Queue()
         self.receiver.start()
         self.current_goal = None
+
 
     def __del__(self):
         self.receiver.stop()
 
     def move_on_error(self):
         if not self.current_goal.cartesian:
-            raise StandardError('Must be deeling with cartesian coordinates '
+            raise StandardError('Must be dealing with cartesian coordinates '
                                 'to do a move on error')
         if not self.goals.empty():
             if self.current_goal is not None:
@@ -53,6 +57,7 @@ class URRobot(object):
 
     def move_on_stop(self):
         if not self.goals.empty():
+            time.sleep(.1)
             while not all(v == 0 for v in
                           self.receiver.target_joint_velocities):
                 time.sleep(self.sleep_time)

@@ -87,7 +87,7 @@ class URReceiver(object):
     precision = 4
     double_format_string = "{:+0"+str(precision+7)+"."+str(precision)+"f}"
 
-    def __init__(self, ip, port, verbose=False):
+    def __init__(self, open_socket, verbose=False):
         """Construct a UR Robot connection given connection parameters
 
         Args:
@@ -98,11 +98,9 @@ class URReceiver(object):
             verbose (bool): Whether to print received data in main loop
         """
 
-        self.ip_address = ip
-        self.port = port
         self.clean_data = array.array('d', [0] * 101)
         self.raw_data = ''
-        self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__socket = open_socket
         self.clean_packets = 0
         self.stub_packets = 0
         self.received = 0
@@ -130,18 +128,12 @@ class URReceiver(object):
         self.__receiving_thread = None
         self.verbose = verbose
 
-        self.__socket.connect((self.ip_address, self.port))  # Connect to robot
         print "\033[2J"  # Clear screen
 
     def __del__(self):
         """Shutdown connection and print aggregated connection stats"""
 
         self.stop()
-
-        self.verbose_print('closing ports', '*')
-        self.__socket.shutdown(socket.SHUT_RDWR)
-        self.__socket.close()
-        self.verbose_print('shutdown and closed socket', '*')
 
         print "Received: "+str(self.received) + " packets"
         print "Received: "+str(self.clean_packets) + " clean packets"

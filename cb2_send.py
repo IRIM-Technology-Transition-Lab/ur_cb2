@@ -259,7 +259,7 @@ class URSender(object):
 
         self.send('set_payload(m = mass,CoG=cog)')
 
-    def set_tcp(self,pose):
+    def set_tcp(self, pose):
         """Set the TCP transformation.
 
         Set the transformation from the output flange coordinate system to the
@@ -269,7 +269,8 @@ class URSender(object):
             pose (tuple of 6 floats): A pose describing the transformation.
         """
 
-        self.send('set_tcp(pose=pose)')
+        check_pose(pose)
+        self.send('set_tcp(pose={})'.format(pose))
 
     def set_analog_out(self, ao_id, level):
         """Set analog output level
@@ -363,3 +364,20 @@ class URSender(object):
         self.send('set_tool_voltage(voltage={})'.format(voltage))
         self.tool_voltage_set = True
 
+def check_pose(pose):
+    """Checks to make sure that a pose is valid.
+
+    Checks that the pose is a 6 member tuple of floats. Does not return
+    anything, simply raises exceptions if the pose is not valid.
+
+    Args:
+        pose: The pose to check
+    """
+    if not isinstance(pose, tuple):
+        raise TypeError("Expected tuple for pose")
+
+    if not all([isinstance(x, float) for x in pose]):
+        raise TypeError("Expected floats in pose")
+
+    if not len(pose) == 6:
+        raise TypeError("Expected 6 members in pose")

@@ -271,16 +271,28 @@ class URSender(object):
 
         self.send('set_tcp(pose=pose)')
 
-    def set_analog_out(self, id, level):
+    def set_analog_out(self, ao_id, level):
         """Set analog output level
 
         Args:
-            id (int): The output ID#.
+            ao_id (int): The output ID#. AO 0 and 1 are in the control box.
+                There is not analog output on the tool.
             level (float): The output signal level 0-1, corresponding to 4-20mA
                 or 0-10V based on set_analog_output_domain.
         """
+        if not isinstance(ao_id, int):
+            raise TypeError("Expected int for ao_id")
 
-        self.send('set_analog_out(n=id,f=level)')
+        if not isinstance(level, float):
+            raise TypeError("Expected int for domain")
+
+        if ao_id not in (0, 1):
+            raise IndexError('The Analog output ID must be either 0 or 1')
+
+        if level > 1 or level < 0:
+            raise ValueError("Level must be 0-1")
+
+        self.send('set_analog_out(n={},f={})'.format(ao_id, level))
 
     def set_analog_output_domain(self, ao_id, domain):
         """Sets the signal domain of the analog outputs.

@@ -132,14 +132,23 @@ class URSender(object):
         self.v_tool.
 
         Args:
-            pose_via (tuple or lsit of 3 floats): Path point through which to
-                draw arc
+            pose_via (tuple or lsit of 6 floats): Path point through which to
+                draw arc, only x,y,z are used
             pose_to (tuple or list of 6 floats): Destination point
             cartesian (bool): Whether supplied poses are cartesian or joint
                 coordinates
-        """
 
-        self.send('movec(pose_via=,pose_to=,a=self.tool_accel,v=self.tool_vel,r=self.bend)')
+        Raises:
+            TypeError: cartesian was not a boolean
+        """
+        check_pose(pose_to)
+        check_pose(pose_via)
+        if not isinstance(cartesian, bool):
+            raise TypeError('Cartesian must be a boolean')
+        point = 'p' if cartesian else ''
+        self.send('movec({}[{}],{}[{}],a={},v={},r={}'.format(
+            point, clean_list_tuple(pose_via), point, clean_list_tuple(
+                pose_to), self.a_tool, self.v_tool, self.radius))
 
     def move_joint(self, goal, time=0, cartesian=False):
         """

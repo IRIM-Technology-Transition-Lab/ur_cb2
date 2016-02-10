@@ -22,8 +22,8 @@ def scale_path(origin,goal,mult=2):
     path which is the length of the original path times mult from the origin.
 
     Args:
-        origin (tuple of 6 floats): The origin pose
-        goal (tuple of 6 floats): The goal pose
+        origin (tuple or list of 6 floats): The origin pose
+        goal (tuple or list of 6 floats): The goal pose
         mult (float): The multiplier which defines the new path's length
 
     Returns:
@@ -70,25 +70,26 @@ class URSender(object):
         """
 
     def set_force_mode(self, task_frame, selection_vector, wrench, type,
-                      limits):
+                       limits):
         """Set robot to be controlled in force mode
 
         Args:
-            task frame (tuple of 6 floats): A pose vector that defines the force
-                frame relative to the base frame.
+            task frame (tuple or list of 6 floats): A pose vector that defines
+                the force frame relative to the base frame.
 
-            selection vector (tuple of 6 binaries): A 6d vector that may only
-                contain 0 or 1. 1 means that the robot will be compliant in the
-                corresponding axis of the task frame, 0 means the robot is not
-                compliant along/about that axis.
+            selection vector (tuple or list of 6 binaries): A 6d vector that
+                may only contain 0 or 1. 1 means that the robot will be
+                compliant in the corresponding axis of the task frame,
+                0 means the robot is not compliant along/about that axis.
 
-            wrench (tuple of 6 floats): The forces/torques the robot is to apply
-                to its environment. These values have different meanings whether
-                they correspond to a compliant axis or not. Compliant axis: The
-                robot will adjust its position along/about the axis in order to
-                achieve the specified force/torque. Non-compliant axis: The
-                robot follows the trajectory of the program but will account for
-                an external force/torque of the specified value.
+            wrench (tuple or list of 6 floats): The forces/torques the robot
+                is to apply to its environment. These values have different
+                meanings whether they correspond to a compliant axis or not.
+                Compliant axis: The robot will adjust its position along/about
+                the axis in order to achieve the specified force/torque.
+                Non-compliant axis: The robot follows the trajectory of the
+                program but will account for an external force/torque of the
+                specified value.
 
             type (int): An integer specifying how the robot interprets the force
                 frame. 1: The force frame is transformed in a way such that its
@@ -99,14 +100,13 @@ class URSender(object):
                 vector onto the x-y plane of the force frame. All other values
                 of type are invalid.
 
-            limits (tuple of 6 floats): A 6d vector with float values that are
-                interpreted differently for compliant/non-compliant axes:
-                Compliant axes: The limit values for compliant axes are the
-                maximum allowed tcp speed along/about the axis. Non-compliant
-                axes: The limit values for non-compliant axes are the maximum
-                allowed deviation along/about an axis between the actual tcp
-                position and the one set by the
-                program
+            limits (tuple or list of 6 floats): A 6d vector with float values
+                that are interpreted differently for compliant/non-compliant
+                axes: Compliant axes: The limit values for compliant axes
+                are the maximum allowed tcp speed along/about the axis.
+                Non-compliant axes: The limit values for non-compliant axes
+                are the maximum allowed deviation along/about an axis between
+                the actual tcp position and the one set by the program
         """
         self.var = 0
 
@@ -132,8 +132,9 @@ class URSender(object):
         self.v_tool.
 
         Args:
-            pose_via (tuple of 3 floats): Path point through which to draw arc
-            pose_to (tuple of 6 floats): Destination point
+            pose_via (tuple or lsit of 3 floats): Path point through which to
+                draw arc
+            pose_to (tuple or list of 6 floats): Destination point
             cartesian (bool): Whether supplied poses are cartesian or joint
                 coordinates
         """
@@ -155,8 +156,8 @@ class URSender(object):
         'Overlapping Blends' warning message will be generated.
 
         Args:
-            goal (tuple of 6 floats): Destination pose
-            time (floats): The time in which to complete the move, ignored if
+            goal (tuple or list of 6 floats): Destination pose
+            time (float): The time in which to complete the move, ignored if
                 value is zero. Overrides speed and acceleration otherwise.
             cartesian (bool): Whether the goal point is in cartesian
                 coordinates.
@@ -177,8 +178,8 @@ class URSender(object):
         'Overlapping Blends' warning message will be generated.
 
         Args:
-            goal (tuple of 6 floats): Destination pose
-            time (floats): The time in which to complete the move, ignored if
+            goal (tuple or list of 6 floats): Destination pose
+            time (float): The time in which to complete the move, ignored if
                 value is zero. Overrides speed and acceleration otherwise.
             cartesian (bool): Whether the goal point is in cartesian
                 coordinates.
@@ -187,7 +188,7 @@ class URSender(object):
         self.send('movel(pose=goal,a=self.tool_accel,v=self.tool_vel,t=time,r=self.tool_blend)')
 
     def move_process(self, goal, cartesian=True):
-        """Move Process, guarantess that speed will be maintained.
+        """Move Process, guarantees that speed will be maintained.
 
         Blend circular (in tool-space) and move linear (in tool-space) to
         position. Accelerates to and moves with constant tool speed v.
@@ -195,7 +196,7 @@ class URSender(object):
         applications such as gluing
 
         Args:
-            goal (tuple of 6 floats): Destination pose
+            goal (tuple or list of 6 floats): Destination pose
             cartesian (bool): Whether the goal point is in cartesian
                 coordinates.
         """
@@ -208,10 +209,14 @@ class URSender(object):
         Accelerates to and moves with constant tool speed v.
 
         Args:
-            goal (tuple of 6 floats): Destination pose
+            goal (tuple or list of 6 floats): Destination pose
             cartesian (bool): Whether the goal point is in cartesian
                 coordinates.
         """
+
+        check_pose(goal)
+
+        if not isinstance(cartesian,bool)
 
         self.send('servoc(pose=goal,a,v,r)')
 
@@ -219,7 +224,7 @@ class URSender(object):
         """Servo to position (linear in joint-space).
 
         Args:
-            goal (tuple of 6 floats): Destination pose
+            goal (tuple or list of 6 floats): Destination pose
             time (float): The time in which to complete the move in seconds
         """
 
@@ -261,8 +266,8 @@ class URSender(object):
 
         Args:
             mass (float): mass in kilograms
-            cog (tuple of 3 floats): Center of Gravity: [CoGx, CoGy, CoGz]
-                in meters.
+            cog (tuple or list of 3 floats): Center of Gravity: [CoGx, CoGy,
+                CoGz] in meters.
         """
         if not isinstance(mass, float):
             raise TypeError("Expected float for mass")
@@ -275,7 +280,7 @@ class URSender(object):
 
         if cog is not None:
             self.send('set_payload(m={},CoG=[{}])'.format(mass,
-                                                        clean_list_tuple(cog)))
+                                                          clean_list_tuple(cog)))
         else:
             self.send('set_payload(m={})'.format(mass))
 
@@ -286,7 +291,8 @@ class URSender(object):
         TCP as a pose.
 
         Args:
-            pose (tuple of 6 floats): A pose describing the transformation.
+            pose (tuple or list of 6 floats): A pose describing the
+            transformation.
         """
 
         check_pose(pose)
@@ -387,13 +393,13 @@ class URSender(object):
 def check_pose(pose):
     """Checks to make sure that a pose is valid.
 
-    Checks that the pose is a 6 member tuple of floats. Does not return
+    Checks that the pose is a 6 member tuple or list of floats. Does not return
     anything, simply raises exceptions if the pose is not valid.
 
     Args:
         pose: The pose to check
     """
-    if not isinstance(pose, tuple):
+    if not isinstance(pose, (tuple,list)):
         raise TypeError("Expected tuple for pose")
 
     if not all([isinstance(x, float) for x in pose]):
@@ -404,15 +410,15 @@ def check_pose(pose):
 
 
 def check_xyz(pose):
-    """Checks to make sure that a 3 tuple x,y,z is valid.
+    """Checks to make sure that a 3 tuple or list x,y,z is valid.
 
-    Checks that the pose is a 3 member tuple of floats. Does not return
+    Checks that the pose is a 3 member tuple or list of floats. Does not return
     anything, simply raises exceptions if the pose is not valid.
 
     Args:
         pose: The pose to check
     """
-    if not isinstance(pose, tuple):
+    if not isinstance(pose, (tuple,list)):
         raise TypeError("Expected tuple for pose")
 
     if not all([isinstance(x, float) for x in pose]):

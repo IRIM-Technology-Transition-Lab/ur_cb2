@@ -243,7 +243,7 @@ class URSender(object):
     def set_payload(self,mass,cog=None):
         """Set payload mass and center of gravity
 
-        This function must be called, when the payload weight or weigh
+        This function must be called, when the payload weight or weight
         distribution changes significantly - I.e when the robot picks up or puts
         down a heavy workpiece. The CoG argument is optional - If not provided,
         the Tool Center Point (TCP) will be used as the Center of Gravity (CoG).
@@ -256,8 +256,20 @@ class URSender(object):
             cog (tuple of 3 floats): Center of Gravity: [CoGx, CoGy, CoGz]
                 in meters.
         """
+        if not isinstance(mass, float):
+            raise TypeError("Expected float for mass")
 
-        self.send('set_payload(m = mass,CoG=cog)')
+        if cog is not None:
+            check_xyz(cog)
+
+        if mass < 0:
+            raise ValueError("Cannot have negative mass")
+
+        if cog is not None:
+            self.send('set_payload(m={},CoG=[{}])'.format(mass,
+                                                        clean_list_tuple(cog)))
+        else:
+            self.send('set_payload(m={})'.format(mass))
 
     def set_tcp(self, pose):
         """Set the TCP transformation.
@@ -270,7 +282,7 @@ class URSender(object):
         """
 
         check_pose(pose)
-        self.send('set_tcp(pose={})'.format(pose))
+        self.send('set_tcp(pose=[{}])'.format(clean_list_tuple(pose)))
 
     def set_analog_out(self, ao_id, level):
         """Set analog output level
@@ -381,3 +393,36 @@ def check_pose(pose):
 
     if not len(pose) == 6:
         raise TypeError("Expected 6 members in pose")
+
+
+def check_xyz(pose):
+    """Checks to make sure that a 3 tuple x,y,z is valid.
+
+    Checks that the pose is a 3 member tuple of floats. Does not return
+    anything, simply raises exceptions if the pose is not valid.
+
+    Args:
+        pose: The pose to check
+    """
+    if not isinstance(pose, tuple):
+        raise TypeError("Expected tuple for pose")
+
+    if not all([isinstance(x, float) for x in pose]):
+        raise TypeError("Expected floats in pose")
+
+    if not len(pose) == 3:
+        raise TypeError("Expected 3 members in pose")
+
+
+def clean_list_tuple(input_data):
+    """Return a string of the input without brackets or parentheses.
+
+    Args:
+        input_data (tuple or list): The tuple or list to convert to a string
+            and strip of brackets or parentheses
+    """
+
+    if not isinstance(input_data, (tuple, list)):
+        raise TypeError("Expected tuple for pose")
+
+    return str(input_data)[1:-1]

@@ -176,14 +176,14 @@ class URSender(object):
                 raise ValueError('time must be greater than zero')
             self.send('movej({}[{}],a={},v={},t={},r={})'.format(
                 'p' if cartesian else '', clean_list_tuple(goal),
-                self.a_tool, self.v_tool, time, self.radius))
+                self.a_joint, self.v_joint, time, self.radius))
         else:
             self.send('movej({}[{}],a={},v={},r={})'.format('p' if cartesian
                                                             else '',
                                                             clean_list_tuple(
                                                                 goal),
-                                                            self.a_tool,
-                                                            self.v_tool,
+                                                            self.a_joint,
+                                                            self.v_joint,
                                                             self.radius))
 
     def move_line(self, goal, time=None, cartesian=True):

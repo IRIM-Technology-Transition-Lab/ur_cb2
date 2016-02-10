@@ -199,9 +199,19 @@ class URSender(object):
             goal (tuple or list of 6 floats): Destination pose
             cartesian (bool): Whether the goal point is in cartesian
                 coordinates.
-        """
 
-        self.send('movep(pose=goal,a=self.tool_accel,v=self.tool_vel,r=self.tool_blend)')
+        Raises:
+            TypeError: cartesian was not a boolean
+        """
+        check_pose(goal)
+        if not isinstance(cartesian, bool):
+            raise TypeError('Cartesian must be a boolean')
+        self.send('movep({}[{}],a={},v={},r={})'.format('p' if cartesian
+                                                        else '',
+                                                        clean_list_tuple(goal),
+                                                        self.a_tool,
+                                                        self.v_tool,
+                                                        self.radius))
 
     def servo_circular(self, goal, cartesian=True):
         """Servo to position (circular in tool-space).

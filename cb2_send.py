@@ -213,12 +213,15 @@ class URSender(object):
             cartesian (bool): Whether the goal point is in cartesian
                 coordinates.
         """
-
         check_pose(goal)
 
-        if not isinstance(cartesian,bool)
+        if not isinstance(cartesian, bool):
+            raise TypeError('Cartesian must be a boolean')
 
-        self.send('servoc(pose=goal,a,v,r)')
+        if cartesian:
+            self.send('servoc(pose=goal,a,v,r)'.format(clean_list_tuple(goal)))
+        else:
+
 
     def servo_joint(self, goal, time):
         """Servo to position (linear in joint-space).
@@ -296,7 +299,17 @@ class URSender(object):
         """
 
         check_pose(pose)
-        self.send('set_tcp(pose=[{}])'.format(clean_list_tuple(pose)))
+        self.send('set_tcp([{}])'.format(clean_list_tuple(pose)))
+
+    def set_analog_input_range(self, port, range):
+        """Set range of analog inputs
+
+        Port 0 and 1 are in the control box, 2 and three are on the tool flange.
+
+        Args:
+            port (int): Port ID (0,1,2,3)
+            range (int): On the controller: [0: 0-5V, 1: -5-5V, 2: 0-10V 3: -10-10V] On the tool flange: [0: 0-5V, 1: 0-10V 2: 0-20mA]
+        """
 
     def set_analog_out(self, ao_id, level):
         """Set analog output level
@@ -306,6 +319,10 @@ class URSender(object):
                 There is not analog output on the tool.
             level (float): The output signal level 0-1, corresponding to 4-20mA
                 or 0-10V based on set_analog_output_domain.
+
+        Raises:
+            TypeError: Either ao_id was not an integer or level was not a float
+            IndexError: ao_id was not a valid value (0,1)
         """
         if not isinstance(ao_id, int):
             raise TypeError("Expected int for ao_id")
@@ -319,7 +336,7 @@ class URSender(object):
         if level > 1 or level < 0:
             raise ValueError("Level must be 0-1")
 
-        self.send('set_analog_out(n={},f={})'.format(ao_id, level))
+        self.send('set_analog_out({},{})'.format(ao_id, level))
 
     def set_analog_output_domain(self, ao_id, domain):
         """Sets the signal domain of the analog outputs.
@@ -331,6 +348,10 @@ class URSender(object):
         Args:
             ao_id (int): The port number (0 or 1).
             domain (int): 0 for 4-20mA and 1 for 0-10V
+
+        Raises:
+            TypeError: Either ao_id or domain was not an integer
+            IndexError: ao_id or domain was not a valid value (0,1)
         """
         if not isinstance(ao_id, int):
             raise TypeError("Expected int for ao_id")
@@ -344,7 +365,7 @@ class URSender(object):
         if domain not in (0, 1):
             raise IndexError('The Analog domain must be either 0 or 1')
 
-        self.send('set_analog_outputdomain(port={},domain={})'.format(
+        self.send('set_analog_outputdomain({},{})'.format(
             ao_id, domain))
 
     def set_digital_out(self, do_id, level):
@@ -356,6 +377,12 @@ class URSender(object):
                 tool voltage prior to attempting to modify the tool flange
                 outputs.
             level (bool): High or low setting for output
+
+        Raises:
+            TypeError: do_id was not an integer or level was not a boolean
+            StandardError: The tool voltage was not set prior to attempting
+                this call
+            IndexError: do_id was out of range (0-9)
         """
 
         if not isinstance(do_id, int):
@@ -370,7 +397,7 @@ class URSender(object):
         if not isinstance(level, bool):
             raise TypeError("Expected boolean for level")
 
-        self.send('set_digital_out(n={},b={})'.format(do_id, 1 if level else 0))
+        self.send('set_digital_out({},{})'.format(do_id, 1 if level else 0))
 
     def set_tool_voltage(self, voltage):
         """Sets the voltage level for the power supply that delivers power to
@@ -379,6 +406,10 @@ class URSender(object):
 
         Args:
             voltage (int):The voltage to set at the tool connector
+
+        Raises:
+            TypeError: voltage was not an integer
+            ValueError: voltage was not valued 0, 12, or 24
         """
 
         if not isinstance(voltage, int):
@@ -387,7 +418,7 @@ class URSender(object):
         if voltage not in (0, 12, 24):
             raise ValueError("Voltage must be 0, 12, or 24")
 
-        self.send('set_tool_voltage(voltage={})'.format(voltage))
+        self.send('set_tool_voltage({})'.format(voltage))
         self.tool_voltage_set = True
 
 def check_pose(pose):
@@ -398,6 +429,9 @@ def check_pose(pose):
 
     Args:
         pose: The pose to check
+
+    Raises:
+        TypeError: The pose was not valid.
     """
     if not isinstance(pose, (tuple,list)):
         raise TypeError("Expected tuple for pose")
@@ -417,6 +451,9 @@ def check_xyz(pose):
 
     Args:
         pose: The pose to check
+
+    Raises:
+        TypeError: The pose was not valid.
     """
     if not isinstance(pose, (tuple,list)):
         raise TypeError("Expected tuple for pose")
@@ -434,6 +471,9 @@ def clean_list_tuple(input_data):
     Args:
         input_data (tuple or list): The tuple or list to convert to a string
             and strip of brackets or parentheses
+
+    Raises:
+        TypeError: input_data was not a tuple or list
     """
 
     if not isinstance(input_data, (tuple, list)):

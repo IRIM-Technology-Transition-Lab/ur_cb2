@@ -295,7 +295,7 @@ class URSender(object):
 
         self.send('set_gravity([0,0,9.82])')
 
-    def set_payload(self,mass,cog=None):
+    def set_payload(self, mass, cog=None):
         """Set payload mass and center of gravity
 
         This function must be called, when the payload weight or weight
@@ -354,15 +354,15 @@ class URSender(object):
             TypeError: Either port or input_range was not an integer
             IndexError: input_range was not a valid value for the selected port
         """
-        if not isinstance(port,int):
+        if not isinstance(port, int):
             raise TypeError("port must be an integer")
         if not isinstance(input_range, int):
             raise TypeError("input_range must be an integer")
-        if port in (0,1):
+        if port in (0, 1):
             if input_range not in (0, 1, 2, 3):
                 raise IndexError("input_range must be in the set (0,1,2,3) for"
                                  "the controller outputs.")
-        elif port in (2,3):
+        elif port in (2, 3):
             raise IndexError("input_range must be in the set (0,1,2) for "
                              "the tool outputs.")
         else:
@@ -465,6 +465,7 @@ class URSender(object):
         self.send('set_tool_voltage({})'.format(voltage))
         self.tool_voltage_set = True
 
+
 def check_pose(pose):
     """Checks to make sure that a pose is valid.
 
@@ -477,7 +478,7 @@ def check_pose(pose):
     Raises:
         TypeError: The pose was not valid.
     """
-    if not isinstance(pose, (tuple,list)):
+    if not isinstance(pose, (tuple, list)):
         raise TypeError("Expected tuple for pose")
     if not all([isinstance(x, float) for x in pose]):
         raise TypeError("Expected floats in pose")
@@ -497,7 +498,7 @@ def check_xyz(pose):
     Raises:
         TypeError: The pose was not valid.
     """
-    if not isinstance(pose, (tuple,list)):
+    if not isinstance(pose, (tuple, list)):
         raise TypeError("Expected tuple for pose")
     if not all([isinstance(x, float) for x in pose]):
         raise TypeError("Expected floats in pose")

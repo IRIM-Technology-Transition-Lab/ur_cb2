@@ -212,16 +212,20 @@ class URSender(object):
             goal (tuple or list of 6 floats): Destination pose
             cartesian (bool): Whether the goal point is in cartesian
                 coordinates.
+
+        Raises:
+            TypeError: cartesian was not a boolean
         """
         check_pose(goal)
-
         if not isinstance(cartesian, bool):
             raise TypeError('Cartesian must be a boolean')
-
-        if cartesian:
-            self.send('servoc(pose=goal,a,v,r)'.format(clean_list_tuple(goal)))
-        else:
-
+        self.send('servoc({}[{}],a={},v={},r={})'.format('p' if cartesian
+                                                         else '',
+                                                         clean_list_tuple(
+                                                             goal),
+                                                         self.a_tool,
+                                                         self.v_tool,
+                                                         self.radius))
 
     def servo_joint(self, goal, time):
         """Servo to position (linear in joint-space).
@@ -229,6 +233,10 @@ class URSender(object):
         Args:
             goal (tuple or list of 6 floats): Destination pose
             time (float): The time in which to complete the move in seconds
+
+        Raises:
+            TypeError: time was not a float
+            ValueError: time was non positive
         """
 
         check_pose(goal)
@@ -239,17 +247,17 @@ class URSender(object):
         if time <= 0:
             raise ValueError('Time must be a positive value')
 
-        self.send('servoj(q=[{}],t={})'.format(clean_list_tuple(goal), time))
+        self.send('servoj([{}],t={})'.format(clean_list_tuple(goal), time))
 
     def stop_joint(self):
         """Stop (linear in joint space)"""
 
-        self.send('stopj(a={})'.format(self.a_joint))
+        self.send('stopj({})'.format(self.a_joint))
 
     def stop_linear(self):
         """Stop (linear in tool space)"""
 
-        self.send('stopl(a={})'.format(self.a_tool))
+        self.send('stopl({})'.format(self.a_tool))
 
     def set_normal_gravity(self):
         """Sets a normal gravity for an upright mounted robot"""
@@ -324,8 +332,8 @@ class URSender(object):
                 raise IndexError("input_range must be in the set (0,1,2,3) for"
                                  "the controller outputs.")
         elif port in (2,3):
-                raise IndexError("input_range must be in the set (0,1,2) for "
-                                 "the tool outputs.")
+            raise IndexError("input_range must be in the set (0,1,2) for "
+                             "the tool outputs.")
         else:
             raise IndexError("port must be in the set (0,1,2,3)")
         self.send('set_analog_inputrange({},{})'.format(port, input_range))

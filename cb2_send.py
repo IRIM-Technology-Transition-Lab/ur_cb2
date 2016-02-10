@@ -301,15 +301,34 @@ class URSender(object):
         check_pose(pose)
         self.send('set_tcp([{}])'.format(clean_list_tuple(pose)))
 
-    def set_analog_input_range(self, port, range):
-        """Set range of analog inputs
+    def set_analog_input_range(self, port, input_range):
+        """Set input_range of analog inputs
 
         Port 0 and 1 are in the control box, 2 and three are on the tool flange.
 
         Args:
             port (int): Port ID (0,1,2,3)
-            range (int): On the controller: [0: 0-5V, 1: -5-5V, 2: 0-10V 3: -10-10V] On the tool flange: [0: 0-5V, 1: 0-10V 2: 0-20mA]
+            input_range (int): On the controller: [0: 0-5V, 1: -5-5V, 2: 0-10V
+                3: -10-10V] On the tool flange: [0: 0-5V, 1: 0-10V 2: 0-20mA]
+
+        Raises:
+            TypeError: Either port or input_range was not an integer
+            IndexError: input_range was not a valid value for the selected port
         """
+        if not isinstance(port,int):
+            raise TypeError("port must be an integer")
+        if not isinstance(input_range, int):
+            raise TypeError("input_range must be an integer")
+        if port in (0,1):
+            if input_range not in (0, 1, 2, 3):
+                raise IndexError("input_range must be in the set (0,1,2,3) for"
+                                 "the controller outputs.")
+        elif port in (2,3):
+                raise IndexError("input_range must be in the set (0,1,2) for "
+                                 "the tool outputs.")
+        else:
+            raise IndexError("port must be in the set (0,1,2,3)")
+        self.send('set_analog_inputrange({},{})'.format(port, input_range))
 
     def set_analog_out(self, ao_id, level):
         """Set analog output level

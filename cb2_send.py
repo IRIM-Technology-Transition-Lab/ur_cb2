@@ -15,7 +15,7 @@ def double_range(start, stop, step):
         yield r
         r += step
 
-def scale_path(origin,goal,mult=2):
+def scale_path(origin, goal, mult=2):
     """Creates a new goal pose along a path.
 
     Takes the linear path from the origin to the goal and finds a pose on the
@@ -32,9 +32,35 @@ def scale_path(origin,goal,mult=2):
 
 
 class URSender(object):
-    """A class to send commands to a UR CB2 Robot"""
+    """A class to send commands to a UR CB2 Robot.
 
-    def __init__(self, ip, port, verbose = False):
+    Acceleration, velocity, and the blend radius are all stored and reused
+    for each command. There is a separate values of acceleration and velocity
+    for joint motions and cartesian motions. The user should adjust the
+    values for acceleration and velocity as needed.
+
+    Attributes:
+        ip_address: String representing the IPv4 address of the target robot
+        port: Integer of the port to connect to on the robot (
+            3001:primary client,
+            3002:secondary client,
+            3003: real time client)
+        __socket: The Socket used to connect to the robot
+        a_tool: Float, tool acceleration [m/s^2]
+        v_tool: Float, tool speed [m/s]
+        radius: Float, blend radius [m]. This allows the robots to miss
+            points, so long as they are within the radius and continue
+            moving. If you would like the robot to stop at every point,
+            set this to zero. Because of the real time nature of this system,
+            the value of the blend radius is low.
+        a_joint: Float, joint acceleration of leading axis [rad/s^2]
+        v_joint: Float, joint speed of leading axis [rad/s]
+        tool_voltage_set: Boolean, whether the tool voltage has been set
+        force_settings: Tuple of values to set force following settings on robot
+        verbose: Boolean of whether to print info to the console
+    """
+
+    def __init__(self, ip, port, verbose=False):
         """Construct a UR Robot connection to send commands
 
         Args:
@@ -42,16 +68,17 @@ class URSender(object):
             port (int): The port to connect to on the robot (
                 3001:primary client, 3002:secondary client,
                 3003: real time client)
+            verbose (bool): Whether to print information to the terminal
         """
 
         self.ip_address = ip
         self.port = port
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.a_tool = 1.2 # tool acceleration [m/sˆ2]
-        self.v_tool = 0.3 # tool speed [m/s]
-        self.radius = 0.0 # blend radius [m]
-        self.a_joint = 1.2 # joint acceleration of leading axis [rad/sˆ2]
-        self.v_joint = 0.3 # joint speed of leading axis [rad/s]
+        self.a_tool = 1.2
+        self.v_tool = 0.3
+        self.radius = 0.0
+        self.a_joint = 1.2
+        self.v_joint = 0.3
         self.tool_voltage_set = False
         self.force_settings = None
         self.verbose = verbose

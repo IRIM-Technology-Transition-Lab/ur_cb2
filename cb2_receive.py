@@ -87,7 +87,7 @@ class URReceiver(object):
     precision = 4
     double_format_string = "{:+0"+str(precision+7)+"."+str(precision)+"f}"
 
-    def __init__(self, ip, port, verbose=True):
+    def __init__(self, ip, port, verbose=False):
         """Construct a UR Robot connection given connection parameters
 
         Args:

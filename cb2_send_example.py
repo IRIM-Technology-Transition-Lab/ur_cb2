@@ -1,5 +1,7 @@
 import cb2_send
 import time
+
+
 HOST = "192.168.1.100"    # The remote host
 PORT = 30003              # The same port as used by the server
 

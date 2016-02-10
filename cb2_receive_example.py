@@ -4,7 +4,7 @@ import time
 HOST = "192.168.1.100"    # The remote host
 PORT = 30003              # The same port as used by the server
 
-my_ur_receiver = cb2_receive.URReceiver(HOST, PORT)
+my_ur_receiver = cb2_receive.URReceiver(HOST, PORT, True)
 
 my_ur_receiver.start()
 

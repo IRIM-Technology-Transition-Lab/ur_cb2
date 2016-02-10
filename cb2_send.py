@@ -34,7 +34,7 @@ def scale_path(origin,goal,mult=2):
 class URSender(object):
     """A class to send commands to a UR CB2 Robot"""
 
-    def __init__(self, ip, port):
+    def __init__(self, ip, port, verbose = False):
         """Construct a UR Robot connection to send commands
 
         Args:
@@ -53,6 +53,8 @@ class URSender(object):
         self.a_joint = 1.2 # joint acceleration of leading axis [rad/sˆ2]
         self.v_joint = 0.3 # joint speed of leading axis [rad/s]
         self.tool_voltage_set = False
+        self.force_settings = None
+        self.verbose = verbose
 
     def __del__(self):
         """Shutdown IP port"""
@@ -62,22 +64,25 @@ class URSender(object):
         self.__socket.close()
         print 'shutdown and closed socket'
 
-    def send(self,message):
+    def send(self, message):
         """Sends the message over the IP pipe.
 
         Args:
             message (str): The message to be sent.
         """
+        if self.verbose:
+            print message
+        self.__socket.send(message)
 
-    def set_force_mode(self, task_frame, selection_vector, wrench, type,
+    def set_force_mode(self, task_frame, selection_vector, wrench, frame_type,
                        limits):
         """Set robot to be controlled in force mode
 
         Args:
-            task frame (tuple or list of 6 floats): A pose vector that defines
+            task_frame (tuple or list of 6 floats): A pose vector that defines
                 the force frame relative to the base frame.
 
-            selection vector (tuple or list of 6 binaries): A 6d vector that
+            selection_vector (tuple or list of 6 binaries): A 6d vector that
                 may only contain 0 or 1. 1 means that the robot will be
                 compliant in the corresponding axis of the task frame,
                 0 means the robot is not compliant along/about that axis.
@@ -91,14 +96,14 @@ class URSender(object):
                 program but will account for an external force/torque of the
                 specified value.
 
-            type (int): An integer specifying how the robot interprets the force
+            frame_type (int): Specifies how the robot interprets the force
                 frame. 1: The force frame is transformed in a way such that its
                 y-axis is aligned with a vector pointing from the robot tcp
                 towards the origin of the force frame. 2: The force frame is not
                 transformed. 3: The force frame is transformed in a way such
                 that its x-axis is the projection of the robot tcp velocity
                 vector onto the x-y plane of the force frame. All other values
-                of type are invalid.
+                of frame_type are invalid.
 
             limits (tuple or list of 6 floats): A 6d vector with float values
                 that are interpreted differently for compliant/non-compliant
@@ -107,17 +112,43 @@ class URSender(object):
                 Non-compliant axes: The limit values for non-compliant axes
                 are the maximum allowed deviation along/about an axis between
                 the actual tcp position and the one set by the program
+
+        Raises:
+            TypeError: The selection_vector was not a tuple, it did not
+                have 6 members, or it was not filled with booleans; or
+                frame_type was not an integer
+            IndexError: frame_type was not in the set (1,2,3)
         """
-        self.var = 0
+        check_pose(task_frame)
+        check_pose(wrench)
+        check_pose(limits)
+        if not isinstance(selection_vector, (tuple, list)):
+            raise TypeError("Expected tuple or list for selection_vector")
+        if not all([isinstance(x, bool) for x in selection_vector]):
+            raise TypeError("Expected booleans in selection_vector")
+        if not len(selection_vector) == 6:
+            raise TypeError("Expected 6 members in selection_vector")
+        if not isinstance(frame_type, int):
+            raise TypeError("frame_type must be an integer")
+        if frame_type not in (1, 2, 3):
+            raise IndexError("frame_type must be in the set (1,2,3)")
+
+        self.force_settings = (task_frame, selection_vector, wrench, frame_type,
+                               limits)
 
     def force_mode_on(self):
         """Activates force mode.
 
         Requires that force mode settings have been passed in by
         set_force_mode()
-        """
 
-        self.send('forcemode(taskframe=,selection_vector=,wrench=,type=,limits=)')
+        Raises:
+            StandardError: Force settings have not been called.
+        """
+        if self.force_settings is None:
+            raise StandardError('Force Settings have not been set with '
+                                'set_force_mode')
+        self.send('forcemode({},{},{},{},{})'.format(*self.force_settings))
 
     def force_mode_off(self):
         """Deactivates force mode"""
@@ -510,7 +541,7 @@ def check_pose(pose):
         TypeError: The pose was not valid.
     """
     if not isinstance(pose, (tuple, list)):
-        raise TypeError("Expected tuple for pose")
+        raise TypeError("Expected tuple or list for pose")
     if not all([isinstance(x, float) for x in pose]):
         raise TypeError("Expected floats in pose")
     if not len(pose) == 6:
@@ -530,7 +561,7 @@ def check_xyz(pose):
         TypeError: The pose was not valid.
     """
     if not isinstance(pose, (tuple, list)):
-        raise TypeError("Expected tuple for pose")
+        raise TypeError("Expected tuple or list for pose")
     if not all([isinstance(x, float) for x in pose]):
         raise TypeError("Expected floats in pose")
     if not len(pose) == 3:

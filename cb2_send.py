@@ -65,6 +65,62 @@ def scale_path(origin, goal, multiplier=2):
     return tuple(output)
 
 
+def check_pose(pose):
+    """Checks to make sure that a pose is valid.
+
+    Checks that the pose is a 6 member tuple or list of floats. Does not return
+    anything, simply raises exceptions if the pose is not valid.
+
+    Args:
+        pose: The pose to check
+
+    Raises:
+        TypeError: The pose was not valid.
+    """
+    if not isinstance(pose, (tuple, list)):
+        raise TypeError("Expected tuple or list for pose")
+    if not all([isinstance(x, float) for x in pose]):
+        raise TypeError("Expected floats in pose")
+    if not len(pose) == 6:
+        raise TypeError("Expected 6 members in pose")
+
+
+def check_xyz(pose):
+    """Checks to make sure that a 3 tuple or list x,y,z is valid.
+
+    Checks that the pose is a 3 member tuple or list of floats. Does not return
+    anything, simply raises exceptions if the pose is not valid.
+
+    Args:
+        pose: The pose to check
+
+    Raises:
+        TypeError: The pose was not valid.
+    """
+    if not isinstance(pose, (tuple, list)):
+        raise TypeError("Expected tuple or list for pose")
+    if not all([isinstance(x, float) for x in pose]):
+        raise TypeError("Expected floats in pose")
+    if not len(pose) == 3:
+        raise TypeError("Expected 3 members in pose")
+
+
+def clean_list_tuple(input_data):
+    """Return a string of the input without brackets or parentheses.
+
+    Args:
+        input_data (tuple or list): The tuple or list to convert to a string
+            and strip of brackets or parentheses
+
+    Raises:
+        TypeError: input_data was not a tuple or list
+    """
+
+    if not isinstance(input_data, (tuple, list)):
+        raise TypeError("Expected tuple for pose")
+    return str(input_data)[1:-1]
+
+
 class URSender(object):
     """A class to send commands to a UR CB2 Robot.
 
@@ -587,59 +643,3 @@ class URSender(object):
             raise ValueError("Voltage must be 0, 12, or 24")
         self.send('set_tool_voltage({})'.format(voltage))
         self.tool_voltage_set = True
-
-
-def check_pose(pose):
-    """Checks to make sure that a pose is valid.
-
-    Checks that the pose is a 6 member tuple or list of floats. Does not return
-    anything, simply raises exceptions if the pose is not valid.
-
-    Args:
-        pose: The pose to check
-
-    Raises:
-        TypeError: The pose was not valid.
-    """
-    if not isinstance(pose, (tuple, list)):
-        raise TypeError("Expected tuple or list for pose")
-    if not all([isinstance(x, float) for x in pose]):
-        raise TypeError("Expected floats in pose")
-    if not len(pose) == 6:
-        raise TypeError("Expected 6 members in pose")
-
-
-def check_xyz(pose):
-    """Checks to make sure that a 3 tuple or list x,y,z is valid.
-
-    Checks that the pose is a 3 member tuple or list of floats. Does not return
-    anything, simply raises exceptions if the pose is not valid.
-
-    Args:
-        pose: The pose to check
-
-    Raises:
-        TypeError: The pose was not valid.
-    """
-    if not isinstance(pose, (tuple, list)):
-        raise TypeError("Expected tuple or list for pose")
-    if not all([isinstance(x, float) for x in pose]):
-        raise TypeError("Expected floats in pose")
-    if not len(pose) == 3:
-        raise TypeError("Expected 3 members in pose")
-
-
-def clean_list_tuple(input_data):
-    """Return a string of the input without brackets or parentheses.
-
-    Args:
-        input_data (tuple or list): The tuple or list to convert to a string
-            and strip of brackets or parentheses
-
-    Raises:
-        TypeError: input_data was not a tuple or list
-    """
-
-    if not isinstance(input_data, (tuple, list)):
-        raise TypeError("Expected tuple for pose")
-    return str(input_data)[1:-1]

@@ -15,20 +15,27 @@ def double_range(start, stop, step):
         yield r
         r += step
 
-def scale_path(origin, goal, mult=2):
+
+def scale_path(origin, goal, multiplier=2):
     """Creates a new goal pose along a path.
 
     Takes the linear path from the origin to the goal and finds a pose on the
-    path which is the length of the original path times mult from the origin.
+    path which is the length of the original path times multiplier from the
+    origin.
 
     Args:
         origin (tuple or list of 6 floats): The origin pose
         goal (tuple or list of 6 floats): The goal pose
-        mult (float): The multiplier which defines the new path's length
+        multiplier (float): The multiplier which defines the new path's length
 
     Returns:
         tuple of 6 floats: the new pose along the path.
     """
+    output = []
+    for x, y in zip(origin, goal):
+        output.append(x + (multiplier * (y - x)))
+
+    return tuple(output)
 
 
 class URSender(object):

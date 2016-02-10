@@ -1,15 +1,42 @@
+"""A module to send commands to a UR robot"""
+
 import socket
 
 
 def deg_2_rad(x):
+    """Converts from degrees to radians
+
+    Args:
+        x (float): The input in degrees
+
+    Returns: A float of the value input converted to radians
+
+    """
     return 3.14 * x / 180
 
 
 def rad_2_deg(x):
+    """Converts from radians to degrees
+
+    Args:
+        x (float): the input value in radians
+
+    Returns: A float of the value input converted to degrees.
+
+    """
     return (x / 3.14) * 180
 
 
 def double_range(start, stop, step):
+    """ Create a list from start to stop with interval step
+
+    Args:
+        start (float): The initial value
+        stop (float): The ending value
+        step (float): The step size
+
+    Returns: A list from start to stop with interval step
+    """
     r = start
     while r < stop:
         yield r

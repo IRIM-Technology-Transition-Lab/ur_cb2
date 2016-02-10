@@ -326,16 +326,12 @@ class URSender(object):
         """
         if not isinstance(ao_id, int):
             raise TypeError("Expected int for ao_id")
-
         if not isinstance(level, float):
             raise TypeError("Expected int for domain")
-
         if ao_id not in (0, 1):
             raise IndexError('The Analog output ID must be either 0 or 1')
-
         if level > 1 or level < 0:
             raise ValueError("Level must be 0-1")
-
         self.send('set_analog_out({},{})'.format(ao_id, level))
 
     def set_analog_output_domain(self, ao_id, domain):
@@ -355,16 +351,12 @@ class URSender(object):
         """
         if not isinstance(ao_id, int):
             raise TypeError("Expected int for ao_id")
-
         if not isinstance(domain, int):
             raise TypeError("Expected int for domain")
-
         if ao_id not in (0, 1):
             raise IndexError('The Analog output ID must be either 0 or 1')
-
         if domain not in (0, 1):
             raise IndexError('The Analog domain must be either 0 or 1')
-
         self.send('set_analog_outputdomain({},{})'.format(
             ao_id, domain))
 
@@ -384,16 +376,13 @@ class URSender(object):
                 this call
             IndexError: do_id was out of range (0-9)
         """
-
         if not isinstance(do_id, int):
             raise TypeError("Expected int for do_id")
-
         if do_id in (8, 9) and not self.tool_voltage_set:
             raise StandardError("The tool voltage must be set prior to "
                                 "attempting to alter tool outputs")
         if do_id > 9 or do_id < 0:
             raise IndexError("The valid range for digital outputs is 0-9")
-
         if not isinstance(level, bool):
             raise TypeError("Expected boolean for level")
 
@@ -411,13 +400,10 @@ class URSender(object):
             TypeError: voltage was not an integer
             ValueError: voltage was not valued 0, 12, or 24
         """
-
         if not isinstance(voltage, int):
             raise TypeError("Expected int for voltage")
-
         if voltage not in (0, 12, 24):
             raise ValueError("Voltage must be 0, 12, or 24")
-
         self.send('set_tool_voltage({})'.format(voltage))
         self.tool_voltage_set = True
 
@@ -435,10 +421,8 @@ def check_pose(pose):
     """
     if not isinstance(pose, (tuple,list)):
         raise TypeError("Expected tuple for pose")
-
     if not all([isinstance(x, float) for x in pose]):
         raise TypeError("Expected floats in pose")
-
     if not len(pose) == 6:
         raise TypeError("Expected 6 members in pose")
 
@@ -457,10 +441,8 @@ def check_xyz(pose):
     """
     if not isinstance(pose, (tuple,list)):
         raise TypeError("Expected tuple for pose")
-
     if not all([isinstance(x, float) for x in pose]):
         raise TypeError("Expected floats in pose")
-
     if not len(pose) == 3:
         raise TypeError("Expected 3 members in pose")
 
@@ -478,5 +460,4 @@ def clean_list_tuple(input_data):
 
     if not isinstance(input_data, (tuple, list)):
         raise TypeError("Expected tuple for pose")
-
     return str(input_data)[1:-1]

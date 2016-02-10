@@ -164,7 +164,7 @@ class URSender(object):
         """
         self.send('movej(q=goal,a=self.joint_accel,v=self.joint_vel,t=time,r=self.blend)')
 
-    def move_line(self, goal, time=0, cartesian=True):
+    def move_line(self, goal, time=None, cartesian=True):
         """Move to position (linear in tool-space).
 
         When using this command, the robot must be at standstill or come from a
@@ -179,13 +179,34 @@ class URSender(object):
 
         Args:
             goal (tuple or list of 6 floats): Destination pose
-            time (float): The time in which to complete the move, ignored if
-                value is zero. Overrides speed and acceleration otherwise.
+            time (float): The time in which to complete the move. Overrides
+                speed and acceleration if set. Must be a positive value.
             cartesian (bool): Whether the goal point is in cartesian
                 coordinates.
-        """
 
-        self.send('movel(pose=goal,a=self.tool_accel,v=self.tool_vel,t=time,r=self.tool_blend)')
+        Raises:
+            TypeError: cartesian was not a boolean or time was not a float
+            ValueError: time was not a positive value
+        """
+        check_pose(goal)
+        if not isinstance(cartesian, bool):
+            raise TypeError('Cartesian must be a boolean')
+        if time is not None:
+            if not isinstance(time, float):
+                raise TypeError('time must be a float')
+            if time <= 0:
+                raise ValueError('time must be greater than zero')
+            self.send('movel({}[{}],a={},v={},t={},r={})'.format(
+                'p' if cartesian else '', clean_list_tuple(goal),
+                self.a_tool, self.v_tool, time, self.radius))
+        else:
+            self.send('movel({}[{}],a={},v={},r={})'.format('p' if cartesian
+                                                            else '',
+                                                            clean_list_tuple(
+                                                                goal),
+                                                            self.a_tool,
+                                                            self.v_tool,
+                                                            self.radius))
 
     def move_process(self, goal, cartesian=True):
         """Move Process, guarantees that speed will be maintained.

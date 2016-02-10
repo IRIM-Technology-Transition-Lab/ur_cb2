@@ -161,8 +161,30 @@ class URSender(object):
                 value is zero. Overrides speed and acceleration otherwise.
             cartesian (bool): Whether the goal point is in cartesian
                 coordinates.
+
+        Raises:
+            TypeError: cartesian was not a boolean or time was not a float
+            ValueError: time was not a positive value
         """
-        self.send('movej(q=goal,a=self.joint_accel,v=self.joint_vel,t=time,r=self.blend)')
+        check_pose(goal)
+        if not isinstance(cartesian, bool):
+            raise TypeError('Cartesian must be a boolean')
+        if time is not None:
+            if not isinstance(time, float):
+                raise TypeError('time must be a float')
+            if time <= 0:
+                raise ValueError('time must be greater than zero')
+            self.send('movej({}[{}],a={},v={},t={},r={})'.format(
+                'p' if cartesian else '', clean_list_tuple(goal),
+                self.a_tool, self.v_tool, time, self.radius))
+        else:
+            self.send('movej({}[{}],a={},v={},r={})'.format('p' if cartesian
+                                                            else '',
+                                                            clean_list_tuple(
+                                                                goal),
+                                                            self.a_tool,
+                                                            self.v_tool,
+                                                            self.radius))
 
     def move_line(self, goal, time=None, cartesian=True):
         """Move to position (linear in tool-space).

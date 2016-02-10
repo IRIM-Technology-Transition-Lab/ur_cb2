@@ -173,6 +173,8 @@ class URSender(object):
         self.force_settings = None
         self.verbose = verbose
 
+        self.__socket.connect((ip, port))
+
     def __del__(self):
         """Shutdown IP port"""
 
@@ -187,6 +189,7 @@ class URSender(object):
         Args:
             message (str): The message to be sent.
         """
+        message += '\n'
         if self.verbose:
             print message
         self.__socket.send(message)
@@ -298,7 +301,7 @@ class URSender(object):
             point, clean_list_tuple(pose_via), point, clean_list_tuple(
                 pose_to), self.a_tool, self.v_tool, self.radius))
 
-    def move_joint(self, goal, time=0, cartesian=False):
+    def move_joint(self, goal, time=None, cartesian=False):
         """
         Move to position (linear in joint-space).
 

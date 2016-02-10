@@ -223,17 +223,25 @@ class URSender(object):
             time (float): The time in which to complete the move in seconds
         """
 
-        self.send('servoj(q=goal,t=time)')
+        check_pose(goal)
+
+        if not isinstance(time, float):
+            raise TypeError('Time must be a float')
+
+        if time <= 0:
+            raise ValueError('Time must be a positive value')
+
+        self.send('servoj(q=[{}],t={})'.format(clean_list_tuple(goal), time))
 
     def stop_joint(self):
         """Stop (linear in joint space)"""
 
-        self.send('stopj(a=self.joint_accel)')
+        self.send('stopj(a={})'.format(self.a_joint))
 
     def stop_linear(self):
         """Stop (linear in tool space)"""
 
-        self.send('stopl(a=self.lin_accel)')
+        self.send('stopl(a={})'.format(self.a_tool))
 
     def set_normal_gravity(self):
         """Sets a normal gravity for an upright mounted robot"""

@@ -271,19 +271,19 @@ class URSender(object):
             mass (float): mass in kilograms
             cog (tuple or list of 3 floats): Center of Gravity: [CoGx, CoGy,
                 CoGz] in meters.
+
+        Raises:
+            TypeError: mass was not a float
+            ValueError: mass was negative
         """
         if not isinstance(mass, float):
             raise TypeError("Expected float for mass")
-
-        if cog is not None:
-            check_xyz(cog)
-
         if mass < 0:
             raise ValueError("Cannot have negative mass")
-
         if cog is not None:
-            self.send('set_payload(m={},CoG=[{}])'.format(mass,
-                                                          clean_list_tuple(cog)))
+            check_xyz(cog)
+            self.send('set_payload(m={},[{}])'.format(mass,
+                                                      clean_list_tuple(cog)))
         else:
             self.send('set_payload(m={})'.format(mass))
 

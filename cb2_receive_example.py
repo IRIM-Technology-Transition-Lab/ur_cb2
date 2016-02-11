@@ -25,6 +25,6 @@ try:
         # print "\n\n" + str(some_num) + "\n\n"
         # some_num += 1
         time.sleep(.25)
-except KeyboardInterrupt:
+finally:
     my_ur_receiver.stop()
     pass

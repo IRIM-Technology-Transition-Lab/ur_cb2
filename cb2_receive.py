@@ -17,11 +17,11 @@ class URReceiver(object):
     of the print methods, if a separate thread is being used. You should
     never write to any of the data fields externally, however you can read
     from them. Python's atomic read/write architecture should prevent you
-    from getting any half baked results.
+    from getting any half baked results from basic types, for all lists and
+    tuples, you must lock using lock (recommend that you use `with lock:`
+    paradigm.
 
     Attributes:
-        ip_address: String of IP address of the robot
-        port: Integer of the IP Port on which which to talk to robot
         clean_data: Double array of length 101 for all of the data returned by
             the robot
         raw_data = '' #: String of complete raw data packet
@@ -68,6 +68,9 @@ class URReceiver(object):
         __receiving_thread: Thread object for running the receiving and parsing
             loops
         verbose: Boolean defining whether or not to print data
+        lock: A threading lock which is used to protect data from race
+            conditions
+        _is_stopped: A boolean specifying whether the robot is stopped
     """
 
     # Format specifier:
@@ -91,13 +94,9 @@ class URReceiver(object):
         """Construct a UR Robot connection given connection parameters
 
         Args:
-            ip (str): The IP address to find the Robot
-            port (int): The port to connect to on the robot (
-                3001:primary client, 3002:secondary client,
-                3003: real time client)
+            open_socket (socket): The socket to use for communications.
             verbose (bool): Whether to print received data in main loop
         """
-
         self.clean_data = array.array('d', [0] * 101)
         self.raw_data = ''
         self.__socket = open_socket
@@ -128,13 +127,12 @@ class URReceiver(object):
         self.__receiving_thread = None
         self.verbose = verbose
         self.lock = threading.Lock()
-
+        self._is_stopped = False
         if verbose:
             print "\033[2J"  # Clear screen
 
     def __del__(self):
-        """Shutdown connection and print aggregated connection stats"""
-
+        """Shutdown side thread and print aggregated connection stats"""
         self.stop()
 
         print "Received: "+str(self.received) + " packets"
@@ -145,7 +143,8 @@ class URReceiver(object):
         """Decode the data stored in the class's rawData field.
 
         Only process the data if there is new data available. Unset the
-        self.newData flag upon completion.
+        self.newData flag upon completion. Note, this will lock the data set
+        and block execution in a number of other functions
         """
         with self.lock:
             if self.new_data:
@@ -179,9 +178,9 @@ class URReceiver(object):
         If an entire data set is not received, then store the data in a
         temporary location (self.waitingData). Once a complete packet is
         received, place the complete packet into self.rawData and set the
-        newData flag
+        newData flag. Note, this will lock the data set and block execution in a
+        number of other functions once a full data set is built.
         """
-
         incoming_data = self.__socket.recv(812)  # expect to get 812 bytes
         if len(incoming_data) == 812:
             self.clean_packets += 1
@@ -198,12 +197,20 @@ class URReceiver(object):
             self.new_data = True
 
     def print_raw_data(self):
-        """Print the raw data which is stored in self.raw_data"""
+        """Print the raw data which is stored in self.raw_data.
+
+        Note, this will lock the data set and block execution in a number of
+        other functions
+        """
         with self.lock:
             print "Received (raw): "+self.raw_data + "\n"
 
     def print_data(self):
-        """Print the processed data stored in self.clean_data"""
+        """Print the processed data stored in self.clean_data
+
+        Note, this will lock the data set and block execution in a number of
+        other functions
+        """
         with self.lock:
             print "Received (unpacked):\n "
             print self.clean_data
@@ -219,7 +226,6 @@ class URReceiver(object):
             values (float, int, tuple of float, list of float): The list of
                 values
         """
-
         to_print = ("%-"+str(self.name_width)+"s") % name
         if isinstance(values, (list, tuple)):
             to_print += ": [%s]" % ', '.join(self.double_format_string.format(x)
@@ -233,7 +239,11 @@ class URReceiver(object):
         print to_print
 
     def print_parsed_data(self):
-        """Print the parsed data"""
+        """Print the parsed data
+
+        Note, this will lock the data set and block execution in a number of
+        other functions
+        """
         with self.lock:
             print "\033[H"
             self.output_data_item("Time since controller turn on",
@@ -280,7 +290,6 @@ class URReceiver(object):
 
     def start(self):
         """Spawn a new thread for receiving and run it"""
-
         if (self.__receiving_thread is None or
                 not self.__receiving_thread.is_alive()):
             self.run = True
@@ -300,6 +309,7 @@ class URReceiver(object):
                 self.print_parsed_data()
 
     def stop(self):
+        """Stops execution of the auxiliary receiving thread"""
         if self.__receiving_thread is not None:
             if self.__receiving_thread.is_alive():
                 self.verbose_print('attempting to shutdown auxiliary thread',
@@ -335,7 +345,18 @@ class URReceiver(object):
                 print (emphasis*count + " " + string_input + " " +
                        emphasis * count)
 
-    def is_stopped(self, error=0.01):
+    def is_stopped(self, error=0.005):
+        """Check whether the robot is stopped.
+
+        Check whether the joint velocities are all below some error. Note, this
+        will lock the data set and block execution in a number of other
+        functions
+
+        Args:
+            error (float): The error range to define "stopped"
+
+        Returns: Boolean, whether the robot is stopped.
+        """
         with self.lock:
             to_return = (
                 all(v == 0 for v in self.target_joint_velocities) and
@@ -343,6 +364,25 @@ class URReceiver(object):
         return to_return
 
     def at_goal(self, goal, cartesian, error=0.005):
+        """Check whether the robot is at a goal point.
+
+        Check whether the differences between the joint or cartesian
+        coordinates are all below some error. This can be used to
+        determine if a move has been completed. It can also be used to
+        create blends by beginning the next move prior to the current one
+        reaching its goal. Note, this will lock the data set and block execution
+        in a number of other functions.
+
+        Args:
+            goal (6 member tuple or list of floats): The goal to check against
+            cartesian (bool): Whether the goal is in cartesian coordinates or
+                not (in which case joint coordinates)
+            error (float): The error range in which to consider an object at
+                its goal.
+
+        Returns: Boolean, whether the current position is within the error
+            range of the goal.
+        """
         with self.lock:
             to_return = (
                 all(abs(g-a) < error for g, a in zip(self.position, goal))

@@ -1,3 +1,10 @@
+"""A basic script to demonstrate usage of the cb2_receive module.
+
+There are a few lines which are commented out. Uncomment these lines to see a
+demonstration of the parallel nature of the cb2_receive module.
+"""
+
+
 import cb2_receive
 import time
 import socket
@@ -5,9 +12,9 @@ import socket
 HOST = "192.168.1.100"    # The remote host
 PORT = 30003              # The same port as used by the server
 
-_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-_socket.connect((HOST, PORT))
-my_ur_receiver = cb2_receive.URReceiver(_socket, True)
+robot_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+robot_socket.connect((HOST, PORT))
+my_ur_receiver = cb2_receive.URReceiver(robot_socket, True)
 
 my_ur_receiver.start()
 

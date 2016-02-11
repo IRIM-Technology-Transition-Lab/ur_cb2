@@ -149,7 +149,8 @@ class URSender(object):
         """Construct a UR Robot connection to send commands
 
         Args:
-            open_socket (socket): An already open and connected socket to a
+            open_socket (socket.socket): An already open and connected socket
+            to a
                 UR robot
             verbose (bool): Whether to print information to the terminal
         """

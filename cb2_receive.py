@@ -94,7 +94,7 @@ class URReceiver(object):
         """Construct a UR Robot connection given connection parameters
 
         Args:
-            open_socket (socket): The socket to use for communications.
+            open_socket (socket.socket): The socket to use for communications.
             verbose (bool): Whether to print received data in main loop
         """
         self.clean_data = array.array('d', [0] * 101)

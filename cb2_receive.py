@@ -127,8 +127,10 @@ class URReceiver(object):
         self.run = False
         self.__receiving_thread = None
         self.verbose = verbose
+        self.lock = threading.Lock()
 
-        print "\033[2J"  # Clear screen
+        if verbose:
+            print "\033[2J"  # Clear screen
 
     def __del__(self):
         """Shutdown connection and print aggregated connection stats"""
@@ -145,30 +147,30 @@ class URReceiver(object):
         Only process the data if there is new data available. Unset the
         self.newData flag upon completion.
         """
-
-        if self.new_data:  # TODO: Maybe this will need a lock
-            self.clean_data = self.format.unpack(self.raw_data)
-            self.time = self.clean_data[1]
-            self.target_joint_positions = self.clean_data[2:8]
-            self.target_joint_velocities = self.clean_data[8:14]
-            self.target_joint_accelerations = self.clean_data[14:20]
-            self.target_joint_currents = self.clean_data[20:26]
-            self.target_joint_moments = self.clean_data[26:32]
-            self.actual_joint_positions = self.clean_data[32:38]
-            self.actual_joint_velocities = self.clean_data[38:44]
-            self.actual_joint_currents = self.clean_data[44:50]
-            self.tool_accelerometer = self.clean_data[50:53]
-            # unused = self.clean_data[53:68]
-            self.force_tcp = self.clean_data[68:74]
-            self.position = self.clean_data[74:80]
-            self.tool_speed = self.clean_data[80:86]
-            self.digital_inputs = self.clean_data[86]
-            self.joint_temperature = self.clean_data[87:93]
-            self.controller_period = self.clean_data[93]
-            # test value = self.clean_data[94]
-            self.robot_control_mode = self.clean_data[95]
-            self.joint_control_modes = self.clean_data[96:102]
-            self.new_data = False
+        with self.lock:
+            if self.new_data:
+                self.clean_data = self.format.unpack(self.raw_data)
+                self.time = self.clean_data[1]
+                self.target_joint_positions = self.clean_data[2:8]
+                self.target_joint_velocities = self.clean_data[8:14]
+                self.target_joint_accelerations = self.clean_data[14:20]
+                self.target_joint_currents = self.clean_data[20:26]
+                self.target_joint_moments = self.clean_data[26:32]
+                self.actual_joint_positions = self.clean_data[32:38]
+                self.actual_joint_velocities = self.clean_data[38:44]
+                self.actual_joint_currents = self.clean_data[44:50]
+                self.tool_accelerometer = self.clean_data[50:53]
+                # unused = self.clean_data[53:68]
+                self.force_tcp = self.clean_data[68:74]
+                self.position = self.clean_data[74:80]
+                self.tool_speed = self.clean_data[80:86]
+                self.digital_inputs = self.clean_data[86]
+                self.joint_temperature = self.clean_data[87:93]
+                self.controller_period = self.clean_data[93]
+                # test value = self.clean_data[94]
+                self.robot_control_mode = self.clean_data[95]
+                self.joint_control_modes = self.clean_data[96:102]
+                self.new_data = False
 
     def receive(self):
         """Receive data from the UR Robot.
@@ -189,21 +191,22 @@ class URReceiver(object):
             self.stub_packets += 1
 
         if len(self.waiting_data) == 812:
-            self.raw_data = self.waiting_data
+            with self.lock:
+                self.raw_data = self.waiting_data
             self.received += 1
             self.new_data = True
 
     def print_raw_data(self):
         """Print the raw data which is stored in self.raw_data"""
-
-        print "Received (raw): "+self.raw_data + "\n"
+        with self.lock:
+            print "Received (raw): "+self.raw_data + "\n"
 
     def print_data(self):
         """Print the processed data stored in self.clean_data"""
-
-        print "Received (unpacked):\n "
-        print self.clean_data
-        print "\n"
+        with self.lock:
+            print "Received (unpacked):\n "
+            print self.clean_data
+            print "\n"
 
     def output_data_item(self, name, values):
         """Output item with name and values.
@@ -230,47 +233,47 @@ class URReceiver(object):
 
     def print_parsed_data(self):
         """Print the parsed data"""
-
-        print "\033[H"
-        self.output_data_item("Time since controller turn on",
-                              self.time)
-        self.output_data_item("Target joint positions",
-                              self.target_joint_positions)
-        self.output_data_item("Target joint velocities",
-                              self.target_joint_velocities)
-        self.output_data_item("Target joint accelerations",
-                              self.target_joint_accelerations)
-        self.output_data_item("Target joint currents",
-                              self.target_joint_currents)
-        self.output_data_item("Target joint moments (torque)",
-                              self.target_joint_moments)
-        self.output_data_item("Actual joint positions",
-                              self.actual_joint_positions)
-        self.output_data_item("Target joint velocities",
-                              self.actual_joint_velocities)
-        self.output_data_item("Target joint currents",
-                              self.actual_joint_currents)
-        self.output_data_item("Tool accelerometer values",
-                              self.tool_accelerometer)
-        self.output_data_item("Generalised forces in the TCP",
-                              self.force_tcp)
-        self.output_data_item("Cartesian tool position",
-                              self.position)
-        self.output_data_item("Cartesian tool speed",
-                              self.tool_speed)
-        self.output_data_item("Joint temperatures (deg C)",
-                              self.joint_temperature)
-        self.output_data_item("Controller period",
-                              self.controller_period)
-        self.output_data_item("Robot control mode",
-                              self.robot_control_mode)
-        self.output_data_item("Joint control modes",
-                              self.joint_control_modes)
-        print ((("%-"+str(self.name_width)+"s") % "Digital Input Number") +
-               ": " + '|'.join('{:^2d}'.format(x) for x in range(0, 18)))
-        print ((("%-"+str(self.name_width)+"s") % "Digital Input Value: ") +
-               ": " + '|'.join('{:^2s}'.format(x) for x in '{:018b}'.format(
-                self.digital_inputs)[::-1]))
+        with self.lock:
+            print "\033[H"
+            self.output_data_item("Time since controller turn on",
+                                  self.time)
+            self.output_data_item("Target joint positions",
+                                  self.target_joint_positions)
+            self.output_data_item("Target joint velocities",
+                                  self.target_joint_velocities)
+            self.output_data_item("Target joint accelerations",
+                                  self.target_joint_accelerations)
+            self.output_data_item("Target joint currents",
+                                  self.target_joint_currents)
+            self.output_data_item("Target joint moments (torque)",
+                                  self.target_joint_moments)
+            self.output_data_item("Actual joint positions",
+                                  self.actual_joint_positions)
+            self.output_data_item("Target joint velocities",
+                                  self.actual_joint_velocities)
+            self.output_data_item("Target joint currents",
+                                  self.actual_joint_currents)
+            self.output_data_item("Tool accelerometer values",
+                                  self.tool_accelerometer)
+            self.output_data_item("Generalised forces in the TCP",
+                                  self.force_tcp)
+            self.output_data_item("Cartesian tool position",
+                                  self.position)
+            self.output_data_item("Cartesian tool speed",
+                                  self.tool_speed)
+            self.output_data_item("Joint temperatures (deg C)",
+                                  self.joint_temperature)
+            self.output_data_item("Controller period",
+                                  self.controller_period)
+            self.output_data_item("Robot control mode",
+                                  self.robot_control_mode)
+            self.output_data_item("Joint control modes",
+                                  self.joint_control_modes)
+            print ((("%-"+str(self.name_width)+"s") % "Digital Input Number") +
+                   ": " + '|'.join('{:^2d}'.format(x) for x in range(0, 18)))
+            print ((("%-"+str(self.name_width)+"s") % "Digital Input Value: ") +
+                   ": " + '|'.join('{:^2s}'.format(x) for x in '{:018b}'.format(
+                    self.digital_inputs)[::-1]))
 
     def start(self):
         """Spawn a new thread for receiving and run it"""
@@ -287,7 +290,6 @@ class URReceiver(object):
 
     def loop(self):
         """The main loop which receives, decodes, and optionally prints data"""
-
         while self.run:
             self.receive()
             self.decode()

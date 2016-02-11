@@ -130,11 +130,6 @@ class URSender(object):
     values for acceleration and velocity as needed.
 
     Attributes:
-        ip_address: String representing the IPv4 address of the target robot
-        port: Integer of the port to connect to on the robot (
-            3001:primary client,
-            3002:secondary client,
-            3003: real time client)
         __socket: The Socket used to connect to the robot
         a_tool: Float, tool acceleration [m/s^2]
         v_tool: Float, tool speed [m/s]
@@ -154,10 +149,8 @@ class URSender(object):
         """Construct a UR Robot connection to send commands
 
         Args:
-            ip (str): The IP address to find the Robot
-            port (int): The port to connect to on the robot (
-                3001:primary client, 3002:secondary client,
-                3003: real time client)
+            open_socket (socket): An already open and connected socket to a
+                UR robot
             verbose (bool): Whether to print information to the terminal
         """
 
@@ -271,7 +264,7 @@ class URSender(object):
         self.v_tool.
 
         Args:
-            pose_via (tuple or lsit of 6 floats): Path point through which to
+            pose_via (tuple or list of 6 floats): Path point through which to
                 draw arc, only x,y,z are used
             pose_to (tuple or list of 6 floats): Destination point
             cartesian (bool): Whether supplied poses are cartesian or joint
@@ -474,7 +467,7 @@ class URSender(object):
         the Tool Center Point (TCP) will be used as the Center of Gravity (CoG).
         If the CoG argument is omitted, later calls to set tcp(pose) will change
         CoG to the new TCP. The CoG is specified as a Vector,
-        [CoGx, CoGy, CoGz], displacement, from the toolmount.
+        [CoGx, CoGy, CoGz], displacement, from the tool mount.
 
         Args:
             mass (float): mass in kilograms
@@ -618,7 +611,8 @@ class URSender(object):
 
     def set_tool_voltage(self, voltage):
         """Sets the voltage level for the power supply that delivers power to
-        the connector plug in the tool flange of the robot. The votage can be 0,
+        the connector plug in the tool flange of the robot. The voltage can
+        be 0,
         12 or 24 volts.
 
         Args:

@@ -24,11 +24,11 @@ class URRobot(object):
     """
     sleep_time = 0.05
 
-    def __init__(self, ip, port):
+    def __init__(self, ip, port, verbose=False):
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__socket.connect((ip, port))
-        self.receiver = cb2_receive.URReceiver(self.__socket, False)
-        self.sender = cb2_send.URSender(self.__socket, False)
+        self.receiver = cb2_receive.URReceiver(self.__socket, verbose)
+        self.sender = cb2_send.URSender(self.__socket, verbose)
         self.error = 0.0
         self.goals = Queue.Queue()
         self.receiver.start()
@@ -57,9 +57,8 @@ class URRobot(object):
 
     def move_on_stop(self):
         if not self.goals.empty():
-            time.sleep(.1)
-            while not all(v == 0 for v in
-                          self.receiver.target_joint_velocities):
+            while not (self.receiver.is_stopped() and self.receiver.at_goal(
+                    self.current_goal.pose,self.current_goal.cartesian)):
                 time.sleep(self.sleep_time)
             self.move_now()
 

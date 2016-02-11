@@ -1,3 +1,10 @@
+"""Control sending and receiving of basic motion commands with a UR robot.
+
+The module is designed to work with a CB2 robot running SW 1.8. This module
+only gives access to higher level commands. Lower level commands can be
+accessed through the cb2_send and cb2_receive modules.
+"""
+
 import cb2_send
 import cb2_receive
 import Queue
@@ -6,8 +13,35 @@ import socket
 
 
 class Goal(object):
+    """Holds movement goals
+
+    Attributes:
+        pose: A 6 float tuple or list describing the desired robot pose in
+            either joint or cartesian coordinates
+        cartesian: A boolean describing whether the pose is in joint (False) or
+            cartesian (True) space
+        move_type: A string describing the movement type. Valid values are:
+            'linear', 'joint', 'process'
+        velocity: Float, the desired velocity for the specified move. For
+            linear and process this is in m/s, for joint this is in rad/s
+        acceleration: Float, the desired velocity for the specified move. For
+            linear and process this is in m/s^2, for joint this is in rad/s^2
+    """
+
     def __init__(self, pose, cartesian, move_type, velocity=0.3,
-                 acceleration=1.3, radius=0.0):
+                 acceleration=1.3):
+        """Creates an instance fo the cb2_robot class
+
+        Args:
+            pose:
+            cartesian:
+            move_type:
+            velocity:
+            acceleration:
+
+        Returns:
+
+        """
         self.pose = pose
         self.cartesian = cartesian
         if move_type not in ('linear', 'joint', 'process'):
@@ -15,16 +49,31 @@ class Goal(object):
         self.move_type = move_type
         self.velocity = velocity
         self.acceleration = acceleration
-        self.radius = radius
 
 
 class URRobot(object):
     """A class to roll up all communication with a UR robot
 
+    Attributes:
+        ip_address: String representing the IPv4 address of the target robot
+        port: Integer of the port to connect to on the robot (
+            3001:primary client,
+            3002:secondary client,
+            3003: real time client)
+
     """
     sleep_time = 0.05
 
     def __init__(self, ip, port, verbose=False):
+        """Construct a UR Robot connection to send commands
+
+        Args:
+            ip (str): The IP address to find the Robot
+            port (int): The port to connect to on the robot (
+                3001:primary client, 3002:secondary client,
+                3003: real time client)
+            verbose (bool): Whether to print information to the terminal
+        """
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__socket.connect((ip, port))
         self.receiver = cb2_receive.URReceiver(self.__socket, verbose)

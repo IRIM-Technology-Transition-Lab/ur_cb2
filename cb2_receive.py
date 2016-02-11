@@ -84,8 +84,8 @@ class URReceiver(object):
     #: The width to be given to name items when printing out
     name_width = 30
     #: The precision for printing data
-    precision = 4
-    double_format_string = "{:+0"+str(precision+7)+"."+str(precision)+"f}"
+    precision = 7
+    double_format_string = "{:+0"+str(precision+4)+"."+str(precision)+"f}"
 
     def __init__(self, open_socket, verbose=False):
         """Construct a UR Robot connection given connection parameters
@@ -171,6 +171,7 @@ class URReceiver(object):
                 self.robot_control_mode = self.clean_data[95]
                 self.joint_control_modes = self.clean_data[96:102]
                 self.new_data = False
+        self._is_stopped = self.is_stopped()
 
     def receive(self):
         """Receive data from the UR Robot.
@@ -223,8 +224,8 @@ class URReceiver(object):
         if isinstance(values, (list, tuple)):
             to_print += ": [%s]" % ', '.join(self.double_format_string.format(x)
                                              for x in values)
-        elif isinstance(values, int):
-            to_print += ": [%s]" % str(int)
+        elif isinstance(values, (int, bool)):
+            to_print += ": [%s]" % str(values)
         elif isinstance(values, float):
             to_print += ": [%s]" % self.double_format_string.format(values)
         else:
@@ -249,9 +250,9 @@ class URReceiver(object):
                                   self.target_joint_moments)
             self.output_data_item("Actual joint positions",
                                   self.actual_joint_positions)
-            self.output_data_item("Target joint velocities",
+            self.output_data_item("Actual joint velocities",
                                   self.actual_joint_velocities)
-            self.output_data_item("Target joint currents",
+            self.output_data_item("Actual joint currents",
                                   self.actual_joint_currents)
             self.output_data_item("Tool accelerometer values",
                                   self.tool_accelerometer)
@@ -274,6 +275,8 @@ class URReceiver(object):
             print ((("%-"+str(self.name_width)+"s") % "Digital Input Value: ") +
                    ": " + '|'.join('{:^2s}'.format(x) for x in '{:018b}'.format(
                     self.digital_inputs)[::-1]))
+            self.output_data_item("Is Stopped:",
+                                  self._is_stopped)
 
     def start(self):
         """Spawn a new thread for receiving and run it"""
@@ -331,3 +334,19 @@ class URReceiver(object):
             else:
                 print (emphasis*count + " " + string_input + " " +
                        emphasis * count)
+
+    def is_stopped(self, error=0.01):
+        with self.lock:
+            to_return = (
+                all(v == 0 for v in self.target_joint_velocities) and
+                all(v < error for v in self.actual_joint_velocities))
+        return to_return
+
+    def at_goal(self, goal, cartesian, error=0.005):
+        with self.lock:
+            to_return = (
+                all(abs(g-a) < error for g, a in zip(self.position, goal))
+                if cartesian else
+                all(abs(g-a) < error for g, a in
+                    zip(self.actual_joint_positions, goal)))
+        return to_return

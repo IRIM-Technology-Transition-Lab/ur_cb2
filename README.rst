@@ -21,10 +21,6 @@ For Python Import:
 |        | send    |Provides low level access to allow sending data to a UR CB2      |
 +--------+---------+-----------------------------------------------------------------+
 
-- ur_cb2      :  Provides high level access to basic UR Robot interfacing
-    - receive :  Provides low level access to allow receiving data from a UR CB2
-    - send    :  Provides low level access to allow sending data to a UR CB2
-
 For Command Line Usage:
 .......................
 >>>cb2-listen
@@ -49,7 +45,7 @@ How To Setup:
 #. Click on `SETUP Robot`
 #. Click on `Setup NETWORK`
 #. Set the IP address, subnet mask, and default gateway to something
-    intelligent, which matches the network on which the robot will be operating
+   intelligent, which matches the network on which the robot will be operating
 #. Plug in the network cables.
 #. Rock and roll (it is recommended to test by running `cb2-listen` from the
-    command line)
+   command line)

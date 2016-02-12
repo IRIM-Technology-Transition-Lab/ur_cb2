@@ -1,4 +1,7 @@
-"""This basic script demonstrates usage of the cb2_send module."""
+"""This basic script demonstrates usage of the cb2_send module.
+
+Copyright (c) 2016 GTRC. All rights reserved.
+"""
 
 import cb2_send
 import socket

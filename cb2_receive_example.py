@@ -2,6 +2,8 @@
 
 There are a few lines which are commented out. Uncomment these lines to see a
 demonstration of the parallel nature of the cb2_receive module.
+
+Copyright (c) 2016 GTRC. All rights reserved.
 """
 
 

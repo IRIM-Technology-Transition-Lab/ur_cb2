@@ -1,4 +1,7 @@
-"""A simple script demonstrating the basic usage of the cb2_robot class"""
+"""A simple script demonstrating the basic usage of the cb2_robot class
+
+Copyright (c) 2016 GTRC. All rights reserved.
+"""
 
 import cb2_robot
 import time

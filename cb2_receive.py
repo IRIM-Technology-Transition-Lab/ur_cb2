@@ -1,4 +1,7 @@
-"""A module to receive data from UR CB2 robots"""
+"""A module to receive data from UR CB2 robots.
+
+Copyright (c) 2016 GTRC. All rights reserved.
+"""
 
 import socket
 import struct

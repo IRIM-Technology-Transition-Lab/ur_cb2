@@ -1,7 +1,14 @@
-# This script is designed to test the buffering nature of a UR 5, the result
-# is that the UR5 does not buffer motions, but the communication protocol can
-#  get overrun. Therefore it is critical to not send more than 125 commands
-# per second
+"""Test the buffering nature of a UR 5.
+
+This script is designed to test the buffering nature of a UR 5, the result
+is that the UR5 does not buffer motions, but the communication protocol can
+get overrun. Therefore it is critical to not send more than 125 commands
+per second
+
+Copyright (c) 2016 GTRC. All rights reserved.
+"""
+
+
 import socket
 import time
 

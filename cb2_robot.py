@@ -3,6 +3,8 @@
 The module is designed to work with a CB2 robot running SW 1.8. This module
 only gives access to higher level commands. Lower level commands can be
 accessed through the cb2_send and cb2_receive modules.
+
+Copyright (c) 2016 GTRC. All rights reserved.
 """
 
 import cb2_send

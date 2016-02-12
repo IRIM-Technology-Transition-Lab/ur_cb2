@@ -1,4 +1,7 @@
-"""A module to send commands to a UR robot"""
+"""A module to send commands to a UR robot
+
+Copyright (c) 2016 GTRC. All rights reserved.
+"""
 
 import socket
 

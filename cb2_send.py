@@ -143,6 +143,7 @@ class URSender(object):
         tool_voltage_set: Boolean, whether the tool voltage has been set
         force_settings: Tuple of values to set force following settings on robot
         verbose: Boolean of whether to print info to the console
+        sent: Integer of the number of commands sent
     """
 
     def __init__(self, open_socket, verbose=False):
@@ -164,6 +165,11 @@ class URSender(object):
         self.tool_voltage_set = False
         self.force_settings = None
         self.verbose = verbose
+        self.sent = 0
+
+    def __del__(self):
+        """Destructor which prints the number of commands which were sent"""
+        print 'Sent: {} commands'.format(self.sent)
 
     def send(self, message):
         """Sends the message over the IP pipe.
@@ -175,6 +181,7 @@ class URSender(object):
         if self.verbose:
             print message
         self.__socket.send(message)
+        self.sent += 1
 
     def set_force_mode(self, task_frame, selection_vector, wrench, frame_type,
                        limits):

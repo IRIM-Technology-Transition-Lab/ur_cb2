@@ -41,6 +41,7 @@ Examples:
 
 How To Setup:
 -------------
+#. Install the packages: `python setup.py install`
 #. Go to the home screen of PolyScope
 #. Click on `SETUP Robot`
 #. Click on `Setup NETWORK`
@@ -49,3 +50,5 @@ How To Setup:
 #. Plug in the network cables.
 #. Rock and roll (it is recommended to test by running `cb2-listen` from the
    command line)
+#. Once everything is setup, you can import by: `import ur_cb2`,
+   `import ur_cb2.receive`, and `import ur_cb2.send`

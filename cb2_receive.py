@@ -135,7 +135,7 @@ class URReceiver(object):
         """Shutdown side thread and print aggregated connection stats"""
         self.stop()
 
-        print "Received: "+str(self.received) + " packets"
+        print "Received: "+str(self.received) + " data sets"
         print "Received: "+str(self.clean_packets) + " clean packets"
         print "Received: "+str(self.stub_packets) + " stub packets"
 

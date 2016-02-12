@@ -210,7 +210,7 @@ class URRobot(object):
             move_goal = cb2_send.scale_path(current_position,
                                             self.current_goal.pose, multiplier)
         else:
-            move_goal = self.current_goal
+            move_goal = self.current_goal.pose
         self.sender.radius = self.current_goal.radius
 
         if self.current_goal.move_type == 'joint':

@@ -72,7 +72,10 @@ class URRobot(object):
 
     Exposes some of the most commonly used commands made available by
     cb2_send and cb2_receive. To get full access to all commands, you will
-    need to access those classes directly.
+    need to access those classes directly. The URRobot supports use by the
+    with statement, and should be used as such, ex:
+            with URRobot(host, port) as robot:
+                Do stuff...
 
     Attributes:
         __socket: socket.socket which is used to communicate with the robot
@@ -231,3 +234,11 @@ class URRobot(object):
         if self.current_goal.move_type == 'process':
             self.sender.move_process(move_goal,
                                      cartesian=self.current_goal.cartesian)
+
+    def __enter__(self):
+        """Enters the URRobot from a with statement"""
+        return self
+
+    def __exit__(self, *_):
+        """Exits at the end of a context manager statement by destructing."""
+        self.__del__()

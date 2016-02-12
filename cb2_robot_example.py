@@ -10,9 +10,7 @@ import random
 HOST = "192.168.1.100"    # The remote host
 PORT = 30003              # The same port as used by the server
 
-try:
-    robot = cb2_robot.URRobot(HOST, PORT)
-
+with cb2_robot.URRobot(HOST, PORT) as robot:
     angleStart = [90, -95, 90, 0, 90, 90]
     angleStart = map(cb2_robot.cb2_send.deg_2_rad, angleStart)
     center = [100.0/1000, -475.0/1000, 425.0/1000, 1.2, -1.2, 1.2]
@@ -56,7 +54,3 @@ try:
     while not robot.goals.empty():
         robot.move_on_stop()
     print 'complete loop 2'
-
-finally:
-    robot.__del__()
-    pass

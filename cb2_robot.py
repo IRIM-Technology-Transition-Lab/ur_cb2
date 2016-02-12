@@ -26,8 +26,9 @@ class Goal(object):
             linear and process this is in m/s, for joint this is in rad/s
         acceleration: Float, the desired velocity for the specified move. For
             linear and process this is in m/s^2, for joint this is in rad/s^2
-        radius: Float, the blend radius in m for moves. Appears to only have
-            an effect on process moves
+        radius: Float, the blend radius in m for bending moves. Note, a radius
+            will result in inaccurate positioning and so the robot will never
+            reach its goal.
     """
 
     def __init__(self, pose, cartesian, move_type, velocity=0.3,
@@ -111,6 +112,15 @@ class URRobot(object):
         self.receiver.stop()
 
     def move_on_error(self, multiplier=None):
+        """Moves the robot once the robot is within error of the next move.
+
+        Args:
+            multiplier (float): Defines how far the path should be set to
+                overshoot, this can be useful for preventing deceleration
+                between moves.
+        Raises:
+            ValueError: The error value is not valid.
+        """
         if self.error <= 0.0:
             raise ValueError('The error value must be greater than zero')
         if (not self.goals.empty()) and (self.current_goal is not None):
@@ -122,7 +132,7 @@ class URRobot(object):
                 if multiplier is None:
                     self.move_now()
                 else:
-                    self.move_multiple(multiplier)
+                    self.move_now(multiplier)
 
     def move_on_stop(self):
         """Moves once the robot stops.
@@ -135,57 +145,72 @@ class URRobot(object):
             while not (self.receiver.is_stopped() and (
                        self.current_goal is None or
                        self.receiver.at_goal(self.current_goal.pose,
-                                              self.current_goal.cartesian,
+                                             self.current_goal.cartesian,
                                              0.01))):
                 time.sleep(self.sleep_time)
             self.move_now()
 
     def add_goal(self, goal):
+        """Adds a goal to the robots movement queue
+
+        Args:
+            goal (Goal): The goal to add to the queue
+
+        Raises:
+            TypeError: A Goal was not passed in
+        """
         if not isinstance(goal, Goal):
             raise TypeError('Requires the goal be of type Goal')
         self.goals.put(goal)
 
     def clear_goals(self):
+        """Clears the goal queue.
+
+        Allows a user to directly specify the next move.
+        """
         with self.goals.mutex:
             self.goals.queue.clear()
 
-    def move_now(self):
-        self.current_goal = self.goals.get()
-        self.sender.radius = self.current_goal.radius
-
-        if self.current_goal.move_type == 'joint':
-            self.sender.a_joint = self.current_goal.acceleration
-            self.sender.v_joint = self.current_goal.velocity
-        else:
-            self.sender.a_tool = self.current_goal.acceleration
-            self.sender.v_tool = self.current_goal.velocity
-
-        if self.current_goal.move_type == 'joint':
-            self.sender.move_joint(self.current_goal.pose,
-                                   cartesian=self.current_goal.cartesian)
-        if self.current_goal.move_type == 'linear':
-            self.sender.move_line(self.current_goal.pose,
-                                  cartesian=self.current_goal.cartesian)
-        if self.current_goal.move_type == 'process':
-            self.sender.move_process(self.current_goal.pose,
-                                     cartesian=self.current_goal.cartesian)
-
     def at_goal(self):
+        """Return whether the robot is at the goal
+
+        Returns: Boolean, whether the robot is at its goal point
+        """
         return self.receiver.at_goal(self.current_goal.pose,
                                      self.current_goal.cartesian)
 
     def is_stopped(self):
+        """Return whether the robot is stopped.
+
+        Returns: Boolean, whether the robot is stopped.
+        """
         return self.receiver.is_stopped()
 
-    def move_multiple(self, multiplier=2):
+    def move_now(self, multiplier=None):
+        """Moves the robot.
+
+        Will immediately move the robot when called, cancelling out any other
+        motions that may be in progress. The only caveat is that there is a
+        time cost to this call in so far as that the TCP system can only send
+        125 packets per second. If you call move_now too often, it will queue up
+        calls and not move now.
+
+        Args:
+            multiplier (float): An optional multiplier on the path goal which
+                will make the robot move past the goal to allow better
+                blending of moves. It is ignored if None.
+        """
         self.current_goal = self.goals.get()
-        with self.receiver.lock:
-            current_position = (
-                self.receiver.position if
-                self.current_goal.cartesian else
-                self.receiver.actual_joint_positions)
-        move_goal = cb2_send.scale_path(current_position,
-                                        self.current_goal.pose, multiplier)
+        if multiplier is not None:
+            with self.receiver.lock:
+                current_position = tuple(
+                    self.receiver.position if
+                    self.current_goal.cartesian else
+                    self.receiver.actual_joint_positions)
+            move_goal = cb2_send.scale_path(current_position,
+                                            self.current_goal.pose, multiplier)
+        else:
+            move_goal = self.current_goal
         self.sender.radius = self.current_goal.radius
 
         if self.current_goal.move_type == 'joint':

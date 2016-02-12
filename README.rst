@@ -12,6 +12,15 @@ What is Provided:
 
 For Python Import:
 ..................
+
++--------+---------+-----------------------------------------------------------------+
+| ur_cb2 |         | Provides high level access to basic UR Robot interfacing        |
++--------+---------+-----------------------------------------------------------------+
+|        | receive | Provides low level access to allow receiving data from a UR CB2 |
++--------+---------+-----------------------------------------------------------------+
+|        | send    |Provides low level access to allow sending data to a UR CB2      |
++--------+---------+-----------------------------------------------------------------+
+
 - ur_cb2      :  Provides high level access to basic UR Robot interfacing
     - receive :  Provides low level access to allow receiving data from a UR CB2
     - send    :  Provides low level access to allow sending data to a UR CB2
@@ -36,11 +45,11 @@ Examples:
 
 How To Setup:
 -------------
-1. Go to the home screen of PolyScope
-2. Click on `SETUP Robot`
-3. Click on `Setup NETWORK`
-4. Set the IP address, subnet mask, and default gateway to something
+#. Go to the home screen of PolyScope
+#. Click on `SETUP Robot`
+#. Click on `Setup NETWORK`
+#. Set the IP address, subnet mask, and default gateway to something
     intelligent, which matches the network on which the robot will be operating
-5. Plug in the USB cables.
-6. Rock and roll (it is recommended to test by running `cb2-listen` from the
+#. Plug in the network cables.
+#. Rock and roll (it is recommended to test by running `cb2-listen` from the
     command line)

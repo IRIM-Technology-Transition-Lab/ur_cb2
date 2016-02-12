@@ -3,10 +3,10 @@
 Copyright (c) 2016 GTRC. All rights reserved.
 """
 
-import cb2_send
 import socket
 import time
 
+import cb2_send
 
 HOST = "192.168.1.100"    # The remote host
 PORT = 30003              # The same port as used by the server

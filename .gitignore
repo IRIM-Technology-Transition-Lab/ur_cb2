@@ -56,7 +56,8 @@ docs/_build/
 # PyBuilder
 target/
 
-# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and Webstorm
+############ Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode,
+############    PyCharm, CLion, Android Studio and Webstorm
 
 *.iml
 
@@ -104,3 +105,10 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
+######Package stuff:
+# Setuptools distribution folder.
+/dist/
+
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info

@@ -7,11 +7,12 @@ accessed through the cb2_send and cb2_receive modules.
 Copyright (c) 2016 GTRC. All rights reserved.
 """
 
-import cb2_send
-import cb2_receive
 import Queue
-import time
 import socket
+import time
+
+import send.cb2_send as cb2_send
+import receive.cb2_receive as cb2_receive
 
 
 class Goal(object):
@@ -110,7 +111,7 @@ class URRobot(object):
         self.current_goal = None
 
     def __del__(self):
-        """Destructor for the cb2_robot class
+        """Destructor for the ur_cb2 class
 
         Specifically, this stops the threads in the receiver.
         """

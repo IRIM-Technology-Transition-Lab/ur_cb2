@@ -121,8 +121,8 @@ class URRobot(object):
         Raises:
             ValueError: The error value is not valid.
         """
-        if self.error <= 0.0:
-            raise ValueError('The error value must be greater than zero')
+        if self.error <= self.current_goal.radius:
+            raise ValueError('The error value must be greater than the radius')
         if (not self.goals.empty()) and (self.current_goal is not None):
                 while not self.receiver.at_goal(
                         self.current_goal.pose,

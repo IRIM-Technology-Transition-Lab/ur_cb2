@@ -1,10 +1,7 @@
 """A basic script to store points from a cb2 robot
 
-Basic Usage: Run the script. with commandline args. Press `c` to capture  a
+Basic Usage: Run the script, with commandline args. Press `c` to capture  a
 point. Press `s` to save and exit.
-
-commandline args:
-    -f,--file : filename
 
 Copyright (c) 2016 GTRC. All rights reserved.
 """
@@ -43,18 +40,16 @@ def main():
     # Check to make sure that we can access the file
     try:
         f = open(args.file, 'w')
-        print "Able to access file, closing it now until we are done with it."
+        print "Able to access file, closing it now until we are ready for it."
     except IOError:
         print "Unable to access file, bailing out."
         sys.exit("Unable to access file")
-    finally:
-        f.close()
+    f.close()
 
     host = args.ip    # The remote host
     port = args.port  # The same port as used by the server
 
-
-    print 'trying to connect to:: {}:{}'.format(host,port)
+    print 'trying to connect to:    {}:{}'.format(host, port)
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM))\
             as robot_socket:
         robot_socket.connect((host, port))

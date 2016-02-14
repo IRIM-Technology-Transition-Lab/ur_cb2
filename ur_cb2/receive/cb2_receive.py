@@ -187,11 +187,12 @@ class URReceiver(object):
         incoming_data = self.__socket.recv(812)  # expect to get 812 bytes
         if len(incoming_data) == 812:
             self.clean_packets += 1
+        else:
+            self.stub_packets += 1
         if self.formatLength.unpack(incoming_data[0:4])[0] == 812:
             self.waiting_data = incoming_data
         else:
             self.waiting_data += incoming_data
-            self.stub_packets += 1
 
         if len(self.waiting_data) == 812:
             with self.lock:

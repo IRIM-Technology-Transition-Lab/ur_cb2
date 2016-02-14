@@ -23,7 +23,11 @@ For Python Import:
 
 For Command Line Usage:
 .......................
+View live status of robot:
 >>>cb2-listen
+
+Save points from robot for future use:
+>>>cb2-record
 
 Examples:
 .........

@@ -116,6 +116,7 @@ class URRobot(object):
         Specifically, this stops the threads in the receiver.
         """
         self.receiver.stop()
+        self.__socket.close()
 
     def move_on_error(self, multiplier=None):
         """Moves the robot once the robot is within error of the next move.

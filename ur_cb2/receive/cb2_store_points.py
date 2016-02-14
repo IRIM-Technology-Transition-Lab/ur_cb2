@@ -33,10 +33,10 @@ def main():
                         default="cb2points.json")
 
     parser.add_argument("--ip", metavar="ip", type=str,
-                        help='IP address of the robot', required=True)
+                        help='IP address of the robot', default="192.168.1.100")
 
     parser.add_argument("--port", metavar="port", type=int,
-                        help='IP port on the robot', default=3003)
+                        help='IP port on the robot', default=30003)
 
     args = parser.parse_args()
 
@@ -50,11 +50,9 @@ def main():
     finally:
         f.close()
 
-    # host = args.ip    # The remote host
-    # port = args.port  # The same port as used by the server
+    host = args.ip    # The remote host
+    port = args.port  # The same port as used by the server
 
-    host = "192.168.1.100"    # The remote host
-    port = 30003              # The same port as used by the server
 
     print 'trying to connect to:: {}:{}'.format(host,port)
     with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM))\
@@ -88,3 +86,6 @@ def main():
                                " or [s]")
             with open(args.file, 'w') as f:
                 json.dump(json_dict, f, indent=4)
+
+if __name__ == "__main__":
+    main()

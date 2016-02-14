@@ -31,6 +31,7 @@ setup(name='ur_cb2',
       include_package_data=True,
       entry_points={
         'console_scripts': ['cb2-listen=ur_cb2.receive.cb2_receive_example:'
-                            'main']
+                            'main',
+                            'cb2-record=ur_cb2.receive.cb2_store_points:main']
       },
       zip_safe=False)

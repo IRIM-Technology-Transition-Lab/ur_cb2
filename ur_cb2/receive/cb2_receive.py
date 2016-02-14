@@ -393,3 +393,11 @@ class URReceiver(object):
                 all(abs(g-a) < error for g, a in
                     zip(self.actual_joint_positions, goal)))
         return to_return
+
+    def __enter__(self):
+        """Enters the URRobot receiver from a with statement"""
+        return self
+
+    def __exit__(self, *_):
+        """Exits at the end of a context manager statement by destructing."""
+        self.stop()

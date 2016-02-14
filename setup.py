@@ -31,6 +31,7 @@ setup(name='ur_cb2',
       entry_points={
         'console_scripts': ['cb2-listen=ur_cb2.receive.cb2_receive_example:'
                             'main',
-                            'cb2-record=ur_cb2.receive.cb2_store_points:main']
+                            'cb2-record=ur_cb2.receive.cb2_store_points:main',
+                            'cb2-play=ur_cb2.cb2_move_to_points:main']
       },
       zip_safe=False)

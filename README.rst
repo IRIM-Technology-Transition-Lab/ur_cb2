@@ -29,6 +29,9 @@ View live status of robot:
 Save points from robot for future use:
 >>>cb2-record
 
+Play back previously recorded points:
+>>>cb2-play
+
 Examples:
 .........
 

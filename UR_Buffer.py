@@ -5,6 +5,8 @@ is that the UR5 does not buffer motions, but the communication protocol can
 get overrun. Therefore it is critical to not send more than 125 commands
 per second
 
+The MIT License (MIT)
+
 Copyright (c) 2016 GTRC.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

@@ -3,6 +3,8 @@
 Basic Usage: Run the script, with commandline args. Press `c` to capture  a
 point. Press `s` to save and exit.
 
+The MIT License (MIT)
+
 Copyright (c) 2016 GTRC.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

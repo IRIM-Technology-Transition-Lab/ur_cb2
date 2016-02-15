@@ -3,6 +3,8 @@
 There are a few lines which are commented out. Uncomment these lines to see a
 demonstration of the parallel nature of the cb2_receive module.
 
+The MIT License (MIT)
+
 Copyright (c) 2016 GTRC.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

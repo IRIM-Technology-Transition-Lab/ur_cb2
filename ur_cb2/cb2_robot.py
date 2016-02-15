@@ -4,6 +4,8 @@ The module is designed to work with a CB2 robot running SW 1.8. This module
 only gives access to higher level commands. Lower level commands can be
 accessed through the cb2_send and cb2_receive modules.
 
+The MIT License (MIT)
+
 Copyright (c) 2016 GTRC.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

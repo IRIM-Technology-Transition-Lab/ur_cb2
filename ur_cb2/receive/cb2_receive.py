@@ -1,5 +1,7 @@
 """A module to receive data from UR CB2 robots.
 
+The MIT License (MIT)
+
 Copyright (c) 2016 GTRC.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

@@ -1,5 +1,7 @@
 """This basic script demonstrates usage of the cb2_send module.
 
+The MIT License (MIT)
+
 Copyright (c) 2016 GTRC.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

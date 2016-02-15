@@ -3,6 +3,8 @@
 Basic Usage: Store points using cb2_store_points.py (cb2-record from the
 terminal). Run this script, with commandline args.
 
+The MIT License (MIT)
+
 Copyright (c) 2016 GTRC.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

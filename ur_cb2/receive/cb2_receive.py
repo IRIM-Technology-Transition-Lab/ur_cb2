@@ -402,7 +402,8 @@ class URReceiver(object):
             cartesian (bool): Whether the goal is in cartesian coordinates or
                 not (in which case joint coordinates)
             error (float): The error range in which to consider an object at
-                its goal.
+                its goal, in meters for cartesian space and radians for axis
+                space.
 
         Returns: Boolean, whether the current position is within the error
             range of the goal.

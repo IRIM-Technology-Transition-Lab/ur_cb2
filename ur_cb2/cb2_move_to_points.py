@@ -35,7 +35,7 @@ import time
 def main():
     # Parse in arguments
     parser = argparse.ArgumentParser(
-        description='Save Points',
+        description='Replay points from json',
         epilog="This software is designed to move a cb2 robot to points which "
                "have been previously saved.")
 

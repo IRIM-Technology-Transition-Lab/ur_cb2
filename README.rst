@@ -48,7 +48,7 @@ Examples:
 
 How To Setup:
 -------------
-#. Install the packages: `python setup.py install`
+#. Install the packages: `python setup.py install` or `pip install ur_cb2`
 #. Go to the home screen of PolyScope
 #. Click on `SETUP Robot`
 #. Click on `Setup NETWORK`

@@ -7,7 +7,7 @@ def readme():
 
 
 def load_license():
-    with open('license.rst') as f:
+    with open('LICENSE.rst') as f:
         return f.read()
 
 setup(name='ur_cb2',

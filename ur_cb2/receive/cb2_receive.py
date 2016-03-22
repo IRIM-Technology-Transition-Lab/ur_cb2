@@ -47,7 +47,7 @@ class URReceiver(object):
     Attributes:
         clean_data: Double array of length 101 for all of the data returned by
             the robot
-        raw_data = '' #: String of complete raw data packet
+        raw_data: String of complete raw data packet
         __socket: The socket for communications
         clean_packets: The Integer number of packets which have been received
             cleanly

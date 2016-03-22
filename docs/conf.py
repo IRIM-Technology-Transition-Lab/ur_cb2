@@ -16,7 +16,7 @@ import sys
 import os
 import sphinx_rtd_theme
 
-os.system("sphinx-apidoc -f -o ./_modules ..")
+os.system("sphinx-apidoc -f -o ./_modules ../ur_cb2")
 
 
 
@@ -93,7 +93,7 @@ language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = ['_build','setup.py','*setup.py']
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.

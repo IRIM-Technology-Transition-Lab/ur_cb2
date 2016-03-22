@@ -4,9 +4,10 @@
 UR-Sockets:
 ===========
 
-<a href="http://ur-cb2.readthedocs.org/en/latest/?badge=latest" style="text-decoration: none;">
-    <img src="https://readthedocs.org/projects/ur-cb2/badge/?version=latest">
-</a>
+.. raw:: html
+    <a href="http://ur-cb2.readthedocs.org/en/latest/?badge=latest" style="text-decoration: none;" onclick="$('#badge_markup').toggle(); return false;">
+        <img src="https://readthedocs.org/projects/ur-cb2/badge/?version=latest">
+    </a>
 
 Testing and working with socket connections to the UR
 

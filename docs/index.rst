@@ -6,13 +6,9 @@
 .. toctree::
    :maxdepth: 2
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-.. automodule:: ur_cb2
+   _modules/ur_cb2
 
 .. include:: ../README.rst
+
+API docs
+========

@@ -2,6 +2,8 @@
 
 REM Command file for Sphinx documentation
 
+sphinx-apidoc -f -o ./_modules ..
+
 if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
 )

@@ -3,12 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. toctree::
-   :maxdepth: 2
 
-   _modules/ur_cb2
 
 .. include:: ../README.rst
 
 API docs
 ========
+.. toctree::
+   :maxdepth: 2
+
+   _modules/ur_cb2

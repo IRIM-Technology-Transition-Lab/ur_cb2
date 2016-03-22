@@ -12,7 +12,7 @@ def load_license():
 
 def main():
     setup(name='ur_cb2',
-          version='0.1',
+          version='0.2',
           description='A package to interface with a UR CB2 Robot over TCP/IP',
           long_description=readme(),
           classifiers=[

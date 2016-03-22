@@ -3,12 +3,12 @@
 
 UR-Sockets:
 ===========
-Testing and working with socket connections to the UR
 
-License:
---------
-You are not granted a license of any kind:
-Copyright (c) 2016 GTRC. All rights reserved.
+<a href="http://ur-cb2.readthedocs.org/en/latest/?badge=latest" style="text-decoration: none;">
+    <img src="https://readthedocs.org/projects/ur-cb2/badge/?version=latest">
+</a>
+
+Testing and working with socket connections to the UR
 
 What is Provided:
 -----------------

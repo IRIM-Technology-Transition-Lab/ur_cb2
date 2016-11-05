@@ -62,6 +62,10 @@ How To Setup:
    command line)
 #. Once everything is setup, you can import by: `import ur_cb2`,
    `import ur_cb2.receive`, and `import ur_cb2.send`
+   
+Useful Notes:
+-------------
+#. The cartesian position is returned as `[x,y,z,<rotation vector>]` where `<rotation vector>` is a three element vector representing the an axis about which to rotate (`<x,y,z>`) in radians equal to the magnitude of the vector.
 
 License:
 --------
